@@ -1,0 +1,13 @@
+build/
+*/build/
+*/*/build/
+cmake-build-*/
+out/
+bin/
+bin/*.exe
+lib/
+*.a
+*.so
+*.dylib
+*.lib
+*.dll

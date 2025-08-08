@@ -1,0 +1,32 @@
+cmake_minimum_required(VERSION 3.15)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+project(make_test LANGUAGES C CXX)
+
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+message("CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+
+message("PROJECT_NAME: ${PROJECT_NAME}")
+message("PROJECT_SOURCE_DIR: ${PROJECT_SOURCE_DIR}")
+message("PROJECT_BINARY_DIR: ${PROJECT_BINARY_DIR}")
+# message("CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
+# message("CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
+message("CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
+message("CMAKE_CURRENT_BINARY_DIR: ${CMAKE_CURRENT_BINARY_DIR}")
+message("CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD}")
+
+message(STATUS "C compiler: ${CMAKE_C_COMPILER}")
+message(STATUS "C compiler version: ${CMAKE_C_COMPILER_VERSION}")
+message(STATUS "C++ compiler: ${CMAKE_CXX_COMPILER}")
+message(STATUS "C++ compiler version: ${CMAKE_CXX_COMPILER_VERSION}")
+
+
+
+add_subdirectory(src)
+
