@@ -1,14 +1,14 @@
-add_subdirectory(extern/fmt EXCLUDE_FROM_ALL)
+add_subdirectory(core)
 
-add_executable(main)
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
+    add_executable(${PROJECT_NAME}_main)
+    target_sources(${PROJECT_NAME}_main PUBLIC main.cpp)
+    target_link_libraries(${PROJECT_NAME}_main PRIVATE ${PROJECT_NAME}_lib)
 
-file(GLOB_RECURSE sources CONFIGURE_DEPENDS *.cpp *.h)
-# 排除第三方库 (fmt) 的文件
-list(FILTER sources EXCLUDE REGEX "${CMAKE_CURRENT_SOURCE_DIR}/extern/fmt/.*")
-message("source files: ${sources}")
-
-target_sources(main PUBLIC ${sources})
-
+    # intergrate libfmt through submodule
+    add_subdirectory(extern/fmt EXCLUDE_FROM_ALL)
+    target_link_libraries(${PROJECT_NAME}_main PRIVATE fmt::fmt)
+endif()
 
 ##### begin of [clang-tidy] settings #####
 function(enable_clang_tidy TARGET)
@@ -32,7 +32,7 @@ function(enable_clang_tidy TARGET)
 endfunction()
 
 # 使用示例
-enable_clang_tidy(main)
+enable_clang_tidy(${PROJECT_NAME}_main)
 ##### end of [clang-tidy] settings #####
 
 ##### begin of [clang-format] settings #####
@@ -58,4 +58,3 @@ else()
   message(WARNING "clang-format not found, skipping format target")
 endif()
 ##### end of [clang-format] settings #####
-target_link_libraries(main PRIVATE fmt::fmt)

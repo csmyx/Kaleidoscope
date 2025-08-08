@@ -10,7 +10,7 @@ config:
 	cmake -B build -S . -DCMAKE_CXX_CLANG_TIDY=clang-tidy -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=${vcpkg_file}
 
 build:
-	cmake --build build --target main
+	cmake --build build --target kaleidoscope_lib
 
 format:
 	cmake --build build --target format
@@ -19,3 +19,5 @@ clean:
 	rm -rf build
 
 rebuild: clean config build
+
+reconfig: clean config

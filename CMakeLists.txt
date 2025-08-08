@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-project(make_test LANGUAGES C CXX)
+project(kaleidoscope LANGUAGES C CXX)
 
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
@@ -30,5 +30,9 @@ message(STATUS "C++ compiler version: ${CMAKE_CXX_COMPILER_VERSION}")
 
 
 
+# 定义头文件目录（供外部引用）
+set(INCLUDE_DIR
+    ${PROJECT_SOURCE_DIR}/include
+)
 add_subdirectory(src)
-
+add_subdirectory(test)
