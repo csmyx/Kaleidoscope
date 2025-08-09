@@ -13,7 +13,7 @@ int gettok()
         LastChar = getchar();
     }
 
-    if (std::isalnum(LastChar))
+    if (std::isalpha(LastChar))
     {
         GlobIdentifierStr = LastChar;
         while (std::isalnum((LastChar = getchar())) != 0)
