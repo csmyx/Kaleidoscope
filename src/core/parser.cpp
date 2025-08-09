@@ -167,6 +167,7 @@ std::unique_ptr<PrototypeAST> ParsePrototype()
     while (GlobCurTok == tok_identifier)
     {
         Args.push_back(GlobIdentifierStr);
+        getNextToken();
     }
     if (GlobCurTok != ')')
     {
@@ -187,6 +188,12 @@ std::unique_ptr<FunctionAST> ParseDefinition()
     return nullptr;
 }
 
+/// external ::= 'extern' prototype
+std::unique_ptr<PrototypeAST> ParseExtern() {
+  getNextToken(); // eat extern.
+  return ParsePrototype();
+}
+
 void HandleDefinition()
 {
     if (ParseDefinition())
@@ -202,7 +209,7 @@ void HandleDefinition()
 
 void HandleExtern()
 {
-    if (ParseExpression())
+    if (ParseExtern())
     {
         fprintf(stderr, "Parsed an extern\n");
     }
