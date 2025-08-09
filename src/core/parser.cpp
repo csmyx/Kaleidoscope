@@ -48,23 +48,25 @@ std::unique_ptr<ExprAST> ParseIdentifierExpr()
     }
     getNextToken(); // eat '('
     std::vector<std::unique_ptr<ExprAST>> args;
-    while (true)
-    {
-        auto v = ParseExpression();
-        if (!v)
+    if (GlobCurTok != ')') {
+        while (true)
         {
-            return LogError("expected expression");
+            auto v = ParseExpression();
+            if (!v)
+            {
+                return LogError("expected expression");
+            }
+            args.push_back(std::move(v));
+            if (GlobCurTok == ')')
+            {
+                break;
+            }
+            if (GlobCurTok != ',')
+            {
+                return LogError("expected ')' or ',' in argment list");
+            }
+            getNextToken(); // eat ','
         }
-        args.push_back(std::move(v));
-        if (GlobCurTok == ')')
-        {
-            break;
-        }
-        if (GlobCurTok != ',')
-        {
-            return LogError("expected ')' or ',' in argment list");
-        }
-        getNextToken(); // eat ','
     }
     getNextToken(); // eat ')'
 
@@ -102,9 +104,9 @@ int GetCurTokPrecedence()
 /// parse BinOpExpr that start from [LHS], and end at a token with precedence strictly less than [TokPrec]
 std::unique_ptr<ExprAST> ParseBinOpRHS(int TokPrec, std::unique_ptr<ExprAST> LHS)
 {
-    int CurPrec = GetCurTokPrecedence();
     while (true)
     {
+        int CurPrec = GetCurTokPrecedence();
         if (CurPrec < TokPrec)
         { // indecate CurTok is not BinOp or BinOp with lower precedence
             return LHS;
@@ -150,7 +152,12 @@ std::unique_ptr<FunctionAST> ParseTopLevelExpr()
 ///   ::= identifier '(' identifier* ')'
 std::unique_ptr<PrototypeAST> ParsePrototype()
 {
+    if (GlobCurTok != tok_identifier)
+        return LogErrorP("Expected function name in prototype");
+
     std::string Name = GlobIdentifierStr;
+    getNextToken();
+
     if (GlobCurTok != '(')
     {
         return LogErrorP("expected '(' in prototype");

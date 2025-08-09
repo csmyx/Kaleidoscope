@@ -5,7 +5,7 @@
 
 std::unique_ptr<ExprAST> LogError(const char* Str)
 {
-    fmt::print(stderr, "Error: %s\n", Str);
+    fmt::print(stderr, "Error: {}\n", Str);
     return nullptr;
 }
 std::unique_ptr<PrototypeAST> LogErrorP(const char* Str)
