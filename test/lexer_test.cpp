@@ -11,8 +11,8 @@ enum token
 
 
 TEST_CASE( "gettok", "[lexer]" ) {
-    extern int Gettok();
-    REQUIRE( Gettok() == -2 );
+    extern int getNextToken();
+    REQUIRE( getNextToken() == -2 );
     // REQUIRE( Factorial(2) == 2 );
     // REQUIRE( Factorial(3) == 6 );
     // REQUIRE( Factorial(10) == 3628800 );

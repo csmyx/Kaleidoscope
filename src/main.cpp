@@ -1,7 +1,13 @@
+#include "core/global.h"
+#include <fmt/core.h>
 
-
-auto main() -> int
+int main()
 {
-    fmt::print("hello");
+    // Prime the first token.
+    fmt::print(stderr, "ready> ");
+    getNextToken();
+
+    // Run the main "interpreter loop" now.
+    ParseMainLoop();
     return 0;
 }

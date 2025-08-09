@@ -14,3 +14,6 @@ extern std::string GlobIdentifierStr;
 extern double GlobNumVal;
 extern int GlobCurTok;
 int getNextToken();
+
+// parser
+void ParseMainLoop();

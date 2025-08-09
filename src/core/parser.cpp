@@ -114,7 +114,7 @@ std::unique_ptr<ExprAST> ParseBinOpRHS(int TokPrec, std::unique_ptr<ExprAST> LHS
         int NextPrec = GetCurTokPrecedence();
         if (CurPrec < NextPrec)
         {
-            RHS = ParseBinOpRHS(CurPrec+1, std::move(RHS));
+            RHS = ParseBinOpRHS(CurPrec + 1, std::move(RHS));
             if (!RHS) return nullptr;
         }
         LHS = std::make_unique<BinaryExprAST>(CurPrec, std::move(LHS), std::move(RHS));
@@ -221,7 +221,7 @@ void HandleTopLevelExpression()
 }
 
 /// top ::= definition | external | expression | ';'
-static void MainLoop()
+void ParseMainLoop()
 {
     while (true)
     {
