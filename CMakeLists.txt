@@ -34,5 +34,7 @@ message(STATUS "C++ compiler version: ${CMAKE_CXX_COMPILER_VERSION}")
 set(INCLUDE_DIR
     ${PROJECT_SOURCE_DIR}/include
 )
+message("INCLUDE_DIR: ${INCLUDE_DIR}")
+
 add_subdirectory(src)
 add_subdirectory(test)

@@ -1,5 +1,12 @@
 add_subdirectory(core)
 
+
+
+file(GLOB_RECURSE FMT_FILES CONFIGURE_DEPENDS *.cpp *.h)
+# 排除第三方库文件
+list(FILTER FMT_FILES EXCLUDE REGEX "${CMAKE_CURRENT_SOURCE_DIR}/extern/fmt/.*")
+message("fmt_files: ${FMT_FILES}")
+
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
     add_executable(${PROJECT_NAME}_main)
     target_sources(${PROJECT_NAME}_main PUBLIC main.cpp)
@@ -43,7 +50,7 @@ if(CLANG_FORMAT)
   # 定义一个自定义目标来执行 clang-format
   add_custom_target(
     format
-    COMMAND ${CLANG_FORMAT} --style=file -i ${sources}
+    COMMAND ${CLANG_FORMAT} --style=file -i ${FMT_FILES}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Formatting C/C++ code with clang-format"
   )
