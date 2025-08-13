@@ -11,17 +11,16 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Verifier.h"
-#include <string>
 #include <map>
+#include <string>
 
 // tokenizer
-enum token
-{
-    tok_eof        = -1,
-    tok_def        = -2,
-    tok_extern     = -3,
+enum token {
+    tok_eof = -1,
+    tok_def = -2,
+    tok_extern = -3,
     tok_identifier = -4,
-    tok_number     = -5,
+    tok_number = -5,
 };
 extern std::string GlobIdentifierStr;
 extern double GlobNumVal;

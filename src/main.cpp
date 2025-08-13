@@ -1,8 +1,7 @@
 #include "core/global.h"
 #include <fmt/core.h>
 
-int main()
-{
+int main() {
     // Prime the first token.
     fmt::print(stderr, "ready> ");
     getNextToken();

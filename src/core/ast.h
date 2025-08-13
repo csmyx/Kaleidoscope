@@ -7,15 +7,13 @@
 #include <string>
 #include <vector>
 
-class ExprAST
-{
+class ExprAST {
   public:
     virtual ~ExprAST() = default;
     virtual llvm::Value *codegen() = 0;
 };
 
-class NumberExprAST : public ExprAST
-{
+class NumberExprAST : public ExprAST {
     double Val;
 
   public:
@@ -23,65 +21,55 @@ class NumberExprAST : public ExprAST
     llvm::Value *codegen() override;
 };
 
-class VariableAST : public ExprAST
-{
+class VariableAST : public ExprAST {
     std::string Name;
 
   public:
-    VariableAST(const std::string& name) : Name(name) {}
+    VariableAST(const std::string &name) : Name(name) {}
     llvm::Value *codegen() override;
 };
 
-class BinaryExprAST : public ExprAST
-{
+class BinaryExprAST : public ExprAST {
     char Op;
     std::unique_ptr<ExprAST> Lhs;
     std::unique_ptr<ExprAST> Rhs;
 
   public:
     BinaryExprAST(char op, std::unique_ptr<ExprAST> lhs, std::unique_ptr<ExprAST> rhs)
-        : Op(op), Lhs(std::move(lhs)), Rhs(std::move(rhs))
-    {
-    }
+        : Op(op), Lhs(std::move(lhs)), Rhs(std::move(rhs)) {}
     llvm::Value *codegen() override;
 };
 
-class CallExprAST : public ExprAST
-{
+class CallExprAST : public ExprAST {
     std::string Callee;
     std::vector<std::unique_ptr<ExprAST>> Args;
 
   public:
-    CallExprAST(const std::string& callee, std::vector<std::unique_ptr<ExprAST>> args)
-        : Callee(callee), Args(std::move(args))
-    {
-    }
+    CallExprAST(const std::string &callee, std::vector<std::unique_ptr<ExprAST>> args)
+        : Callee(callee), Args(std::move(args)) {}
     llvm::Value *codegen() override;
 };
 
 /// PrototypeAST - This class represents the "prototype" for a function,
 /// which captures its name, and its argument names (thus implicitly the number
 /// of arguments the function takes).
-class PrototypeAST : public ExprAST
-{
+class PrototypeAST : public ExprAST {
     std::string Name;
     std::vector<std::string> Args;
 
   public:
-    PrototypeAST(const std::string& name, std::vector<std::string> args) : Name(name), Args(std::move(args)) {}
+    PrototypeAST(const std::string &name, std::vector<std::string> args)
+        : Name(name), Args(std::move(args)) {}
     std::string getName() { return Name; }
     llvm::Function *codegen() override;
 };
 
-class FunctionAST : public ExprAST
-{
+class FunctionAST : public ExprAST {
     std::unique_ptr<PrototypeAST> Proto;
     std::unique_ptr<ExprAST> Body;
 
   public:
     FunctionAST(std::unique_ptr<PrototypeAST> Proto, std::unique_ptr<ExprAST> body)
-        : Proto(std::move(Proto)), Body(std::move(body))
-    {
-    }
+        : Proto(std::move(Proto)), Body(std::move(body)) {}
     llvm::Function *codegen() override;
 };

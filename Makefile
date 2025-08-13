@@ -9,8 +9,9 @@ vcpkg_file := ${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake
 config:
 	cmake -B build -S . -DCMAKE_CXX_CLANG_TIDY=clang-tidy -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=${vcpkg_file}
 
+build_target ?= "lib" 
 build:
-	cmake --build build --target kaleidoscope_lib
+	cmake --build build --target kaleidoscope_${build_target}
 
 format:
 	cmake --build build --target format

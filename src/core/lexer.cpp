@@ -4,36 +4,28 @@
 #include <string>
 
 // return the next token from standard input.
-int gettok()
-{
+int gettok() {
     static int LastChar = ' ';
 
-    while (std::isspace(LastChar))
-    {
+    while (std::isspace(LastChar)) {
         LastChar = getchar();
     }
 
-    if (std::isalpha(LastChar))
-    {
+    if (std::isalpha(LastChar)) {
         GlobIdentifierStr = LastChar;
-        while (std::isalnum((LastChar = getchar())) != 0)
-        {
+        while (std::isalnum((LastChar = getchar())) != 0) {
             GlobIdentifierStr += LastChar;
         }
 
-        if (GlobIdentifierStr == "def")
-        {
+        if (GlobIdentifierStr == "def") {
             return tok_def;
-        }
-        else if (GlobIdentifierStr == "extern")
-        {
+        } else if (GlobIdentifierStr == "extern") {
             return tok_extern;
         }
         return tok_identifier;
     }
 
-    if (std::isdigit(LastChar) || LastChar == '.')
-    {
+    if (std::isdigit(LastChar) || LastChar == '.') {
         std::string Numstr{};
         do {
             Numstr += LastChar;
@@ -43,30 +35,24 @@ int gettok()
         return tok_number;
     }
 
-    if (LastChar == '#')
-    {
+    if (LastChar == '#') {
         do {
             LastChar = getchar();
         } while (LastChar != EOF && LastChar != '\n' && LastChar != '\r');
 
-        if (LastChar != EOF)
-        {
+        if (LastChar != EOF) {
             return gettok();
         }
     }
 
-    if (LastChar == EOF)
-    {
+    if (LastChar == EOF) {
         return tok_eof;
     }
 
     // Otherwise, just return the character as its ascii value.
     int ThisChar = LastChar;
-    LastChar     = getchar();
+    LastChar = getchar();
     return ThisChar;
 }
 
-int getNextToken()
-{
-    return GlobCurTok = gettok();
-};
+int getNextToken() { return GlobCurTok = gettok(); };
