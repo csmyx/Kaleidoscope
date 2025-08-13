@@ -9,5 +9,9 @@ int main()
 
     // Run the main "interpreter loop" now.
     ParseMainLoop();
+
+    // Print out all of the generated code.
+    TheModule->print(llvm::errs(), nullptr);
+
     return 0;
 }

@@ -3,7 +3,7 @@
 all: build run
 
 run:
-	./build/src/main
+	./build/src/kaleidoscope_main
 
 vcpkg_file := ${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake  
 config:
