@@ -3,15 +3,18 @@
 all: build run
 
 run:
+	cmake --build build --target kaleidoscope_main
 	./build/src/kaleidoscope_main
 
-vcpkg_file := ${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake  
+VCPKG_FILE := ${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake  
+# BUILD_TYPE=Debug
+BUILD_TYPE=Debug
 config:
-	cmake -B build -S . -DCMAKE_CXX_CLANG_TIDY=clang-tidy -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=${vcpkg_file}
+	cmake -B build -S . -DCMAKE_CXX_CLANG_TIDY=clang-tidy -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_TOOLCHAIN_FILE=${VCPKG_FILE}
 
-build_target ?= "lib" 
+BUILD_TARGET ?= "lib" 
 build:
-	cmake --build build --target kaleidoscope_${build_target}
+	cmake --build build --target kaleidoscope_${BUILD_TARGET}
 
 format:
 	cmake --build build --target format

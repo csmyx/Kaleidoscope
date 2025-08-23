@@ -6,6 +6,9 @@ int main() {
     fmt::print(stderr, "ready> ");
     getNextToken();
 
+    // Make the module, which holds all the code.
+    InitializeModule();
+
     // Run the main "interpreter loop" now.
     ParseMainLoop();
 

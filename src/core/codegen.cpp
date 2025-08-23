@@ -28,11 +28,11 @@ llvm::Value *BinaryExprAST::codegen() {
     default:
         return LogErrorV("Invalid binary operator");
     case '+':
-        Builder->CreateAdd(LHS, RHS, "addtmp");
+        return Builder->CreateAdd(LHS, RHS, "addtmp");
     case '-':
-        Builder->CreateSub(LHS, RHS, "subtmp");
+        return Builder->CreateSub(LHS, RHS, "subtmp");
     case '*':
-        Builder->CreateMul(LHS, RHS, "multmp");
+        return Builder->CreateMul(LHS, RHS, "multmp");
     case '<':
         LHS = Builder->CreateFCmpULT(LHS, RHS, "cmptmp");
         // Convert bool 0/1 to double 0.0 or 1.0
@@ -63,7 +63,7 @@ llvm::Function *PrototypeAST::codegen() {
     std::vector<llvm::Type *> Doubles(Args.size(), llvm::Type::getDoubleTy(*TheContext));
     llvm::FunctionType *FT =
         llvm::FunctionType::get(llvm::Type::getDoubleTy(*TheContext), Doubles, false);
-    llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage);
+    llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, Name, TheModule.get());
 
     unsigned Idx = 0;
     for (auto &Arg : F->args()) {

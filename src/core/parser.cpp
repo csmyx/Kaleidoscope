@@ -102,6 +102,7 @@ std::unique_ptr<ExprAST> ParseBinOpRHS(int TokPrec, std::unique_ptr<ExprAST> LHS
         if (CurPrec < TokPrec) { // indecate CurTok is not BinOp or BinOp with lower precedence
             return LHS;
         }
+        int BinOp = GlobCurTok;
         getNextToken(); // eat binop
         auto RHS = ParsePrimaryExpr();
         int NextPrec = GetCurTokPrecedence();
@@ -110,7 +111,7 @@ std::unique_ptr<ExprAST> ParseBinOpRHS(int TokPrec, std::unique_ptr<ExprAST> LHS
             if (!RHS)
                 return nullptr;
         }
-        LHS = std::make_unique<BinaryExprAST>(CurPrec, std::move(LHS), std::move(RHS));
+        LHS = std::make_unique<BinaryExprAST>(BinOp, std::move(LHS), std::move(RHS));
     }
 }
 
@@ -206,12 +207,29 @@ void HandleExtern() {
 
 void HandleTopLevelExpression() {
     // Evaluate a top-level expression into an anonymous function.
-    if (ParseTopLevelExpr()) {
-        fprintf(stderr, "Parsed a top-level expr\n");
+    if (auto FnAST = ParseTopLevelExpr()) {
+        if (auto *FnIR = FnAST->codegen()) {
+            fprintf(stderr, "Read top-level expression:\n");
+            FnIR->print(llvm::errs());
+            fprintf(stderr, "\n");
+
+            // Remove the anonymous expression.
+            FnIR->eraseFromParent();
+        }
     } else {
         // Skip token for error recovery.
         getNextToken();
     }
+}
+
+// Must be called before calling [ParseMainLoop]
+void InitializeModule() {
+  // Open a new context and module.
+  TheContext = std::make_unique<llvm::LLVMContext>();
+  TheModule = std::make_unique<llvm::Module>("my cool jit", *TheContext);
+
+  // Create a new builder for the module.
+  Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
 }
 
 /// top ::= definition | external | expression | ';'
