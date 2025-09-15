@@ -25,18 +25,22 @@ llvm::Value *BinaryExprAST::codegen() {
     }
 
     switch (Op) {
-    default:
-        return LogErrorV("Invalid binary operator");
+    case '<':
+        LHS = Builder->CreateFCmpULT(LHS, RHS, "lttmp");
+        // Convert bool 0/1 to double 0.0 or 1.0
+        return Builder->CreateUIToFP(LHS, llvm::Type::getDoubleTy(*TheContext), "booltmp");
+    case '>':
+        LHS = Builder->CreateFCmpUGT(LHS, RHS, "gttmp");
+        // Convert bool 0/1 to double 0.0 or 1.0
+        return Builder->CreateUIToFP(LHS, llvm::Type::getDoubleTy(*TheContext), "booltmp");
     case '+':
         return Builder->CreateAdd(LHS, RHS, "addtmp");
     case '-':
         return Builder->CreateSub(LHS, RHS, "subtmp");
     case '*':
         return Builder->CreateMul(LHS, RHS, "multmp");
-    case '<':
-        LHS = Builder->CreateFCmpULT(LHS, RHS, "cmptmp");
-        // Convert bool 0/1 to double 0.0 or 1.0
-        return Builder->CreateUIToFP(LHS, llvm::Type::getDoubleTy(*TheContext), "booltmp");
+    default:
+        return LogErrorV("Invalid binary operator");
     }
 }
 

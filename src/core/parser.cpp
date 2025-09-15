@@ -83,14 +83,17 @@ std::unique_ptr<ExprAST> ParsePrimaryExpr() {
 #define INVALID_TOK_PREC -1
 int GetCurTokPrecedence() {
     switch (GlobCurTok) {
-    default:
-        return INVALID_TOK_PREC;
+    case '<':
+    case '>':
+        return 10;
     case '+':
     case '-':
         return 20;
     case '*':
     case '/':
         return 40;
+    default:
+        return INVALID_TOK_PREC;
     }
 }
 
