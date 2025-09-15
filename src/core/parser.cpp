@@ -185,7 +185,7 @@ std::unique_ptr<PrototypeAST> ParseExtern() {
 void HandleDefinition() {
     if (auto FnAST = ParseDefinition()) {
         if (auto *FnIR = FnAST->codegen()) {
-            fprintf(stderr, "Read function definition:");
+            fprintf(stderr, "Read function definition:\n");
             FnIR->print(llvm::errs());
             fprintf(stderr, "\n");
         }
@@ -227,12 +227,12 @@ void HandleTopLevelExpression() {
 
 // Must be called before calling [ParseMainLoop]
 void InitializeModule() {
-  // Open a new context and module.
-  TheContext = std::make_unique<llvm::LLVMContext>();
-  TheModule = std::make_unique<llvm::Module>("my cool jit", *TheContext);
+    // Open a new context and module.
+    TheContext = std::make_unique<llvm::LLVMContext>();
+    TheModule = std::make_unique<llvm::Module>("my cool jit", *TheContext);
 
-  // Create a new builder for the module.
-  Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
+    // Create a new builder for the module.
+    Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
 }
 
 /// top ::= definition | external | expression | ';'
