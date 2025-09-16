@@ -1,13 +1,20 @@
+#include "Kaleidoscope.h"
 #include "core/global.h"
 #include <fmt/core.h>
 
 int main() {
+    llvm::InitializeNativeTarget();
+    llvm::InitializeNativeTargetAsmPrinter();
+    llvm::InitializeNativeTargetAsmParser();
+
+    TheJIT = ExitOnErr(llvm::orc::KaleidoscopeJIT::Create());
+
     // Prime the first token.
     fmt::print(stderr, "ready> ");
     getNextToken();
 
     // Make the module, which holds all the code.
-    InitializeModule();
+    InitializeModuleAndManager();
 
     // Run the main "interpreter loop" now.
     ParseMainLoop();

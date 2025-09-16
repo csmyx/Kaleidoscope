@@ -44,9 +44,25 @@ llvm::Value *BinaryExprAST::codegen() {
     }
 }
 
+llvm::Function *getFunction(std::string name) {
+    // First see if the function has already been added to the current module.
+    if (auto *f = TheModule->getFunction(name)) {
+        return f;
+    }
+
+    // If not, check wherther we can codegen the declaration form some existing prototype.
+    auto iter = FunctionProtos.find(name);
+    if (iter != FunctionProtos.end()) {
+        return iter->second->codegen();
+    }
+
+    // If no existing prototype exists, return null.
+    return nullptr;
+}
+
 llvm::Value *CallExprAST::codegen() {
     // Look up the name in the global module table.
-    llvm::Function *CalleeF = TheModule->getFunction(Callee);
+    llvm::Function *CalleeF = getFunction(Callee);
     if (!CalleeF)
         return LogErrorV("Unknown function referenced");
 
@@ -78,7 +94,12 @@ llvm::Function *PrototypeAST::codegen() {
 }
 
 llvm::Function *FunctionAST::codegen() {
-    llvm::Function *TheFunction = TheModule->getFunction(Proto->getName());
+    // Transfer ownership of the prototype to the FunctionProtos map, but keep a reference to it for
+    // use below.
+    auto &p = *Proto;
+    FunctionProtos[Proto->getName()] = std::move(Proto);
+    llvm::Function *TheFunction = getFunction(p.getName());
+
     if (!TheFunction) {
         TheFunction = Proto->codegen();
     }

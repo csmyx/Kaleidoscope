@@ -1,9 +1,10 @@
-#include "ast.h"
+#include "Kaleidoscope.h"
 #include "fmt/core.h"
 #include "global.h"
 #include "util.h"
-#include <memory>
-#include <string>
+#include <llvm-14/llvm/Transforms/InstCombine/InstCombine.h>
+#include <llvm-14/llvm/Transforms/Scalar.h>
+#include <llvm-14/llvm/Transforms/Scalar/GVN.h>
 
 /// numberexpr ::= number
 std::unique_ptr<ExprAST> ParseNumberExpr() {
@@ -188,6 +189,9 @@ void HandleDefinition() {
             fprintf(stderr, "Read function definition:\n");
             FnIR->print(llvm::errs());
             fprintf(stderr, "\n");
+            ExitOnErr(TheJIT->addModule(
+                llvm::orc::ThreadSafeModule(std::move(TheModule), std::move(TheContext))));
+            InitializeModuleAndManager();
         }
     } else {
         // Skip token for error recovery.
@@ -198,9 +202,10 @@ void HandleDefinition() {
 void HandleExtern() {
     if (auto ProtoAST = ParseExtern()) {
         if (auto *FnIR = ProtoAST->codegen()) {
-            fprintf(stderr, "Read extern: ");
+            fprintf(stderr, "Read extern:\n");
             FnIR->print(llvm::errs());
             fprintf(stderr, "\n");
+            FunctionProtos[ProtoAST->getName()] = std::move(ProtoAST);
         }
     } else {
         // Skip token for error recovery.
@@ -216,8 +221,26 @@ void HandleTopLevelExpression() {
             FnIR->print(llvm::errs());
             fprintf(stderr, "\n");
 
-            // Remove the anonymous expression.
-            FnIR->eraseFromParent();
+            // Create a ResourceTracker to track JIT'd memory allocated to our
+            // anonymous expression -- that way we can free it after executing.
+            auto RT = TheJIT->getMainJITDylib().createResourceTracker();
+
+            auto TSM = llvm::orc::ThreadSafeModule(std::move(TheModule), std::move(TheContext));
+            ExitOnErr(TheJIT->addModule(std::move(TSM), RT));
+            InitializeModuleAndManager();
+
+            // Search the JIT for the __anon_expr symbol.
+            auto ExprSymbol = ExitOnErr(TheJIT->lookup("__anon_expr"));
+            assert(ExprSymbol && "Function not found");
+
+            // Get the symbol's address and cast it to the right type (takes no
+            // arguments, return a double) so we can call it as a native function.
+            double (*FP)() = (double (*)())(intptr_t)ExprSymbol.getAddress();
+
+            fprintf(stderr, "Evaluated to %f\n", FP());
+
+            // Delete the anonymou expression module from the JIT.
+            ExitOnErr(RT->remove());
         }
     } else {
         // Skip token for error recovery.
@@ -226,13 +249,28 @@ void HandleTopLevelExpression() {
 }
 
 // Must be called before calling [ParseMainLoop]
-void InitializeModule() {
+void InitializeModuleAndManager() {
     // Open a new context and module.
     TheContext = std::make_unique<llvm::LLVMContext>();
     TheModule = std::make_unique<llvm::Module>("my cool jit", *TheContext);
+    TheModule->setDataLayout(TheJIT->getDataLayout());
 
     // Create a new builder for the module.
     Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
+
+    // Create new pass and analysis managers.
+    TheFPM = std::make_unique<llvm::legacy::FunctionPassManager>(TheModule.get());
+
+    // Do simple "peephole" optimizations and bit-twiddling optimizations.
+    TheFPM->add(llvm::createInstructionCombiningPass());
+    // Reassociate expressions.
+    TheFPM->add(llvm::createReassociatePass());
+    // Eliminate Common SubExpressions.
+    TheFPM->add(llvm::createGVNPass());
+    // Simplify the control flow graph (deleting unrechable blocks, etc).
+    TheFPM->add(llvm::createCFGSimplificationPass());
+
+    TheFPM->doInitialization();
 }
 
 /// top ::= definition | external | expression | ';'

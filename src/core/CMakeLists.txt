@@ -9,13 +9,20 @@ target_include_directories(${PROJECT_NAME}_lib PUBLIC ${INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME}_lib PRIVATE fmt::fmt)
 
 find_package(LLVM 14 REQUIRED CONFIG)
+message(STATUS "LLVM_DIR: ${LLVM_DIR}")
 message(STATUS "Found LLVM Version: ${LLVM_PACKAGE_VERSION}")
 
-# 将 LLVM 组件映射为库名
-# 常用组件：core（核心 IR）、irreader（读取 IR 文件）、analysis（分析工具）、executionengine（JIT）等
-llvm_map_components_to_libnames(llvm_libs 
-  core 
-  irreader 
-  analysis 
+# https://github.com/llvm/llvm-project/blob/llvmorg-14.0.0/llvm/examples/Kaleidoscope/Chapter4/CMakeLists.txt
+llvm_map_components_to_libnames(llvm_libs
+  Analysis
+  Core
+  ExecutionEngine
+  InstCombine
+  Object
+  OrcJIT
+  RuntimeDyld
+  ScalarOpts
+  Support
+  native
 )
 target_link_libraries(${PROJECT_NAME}_lib PRIVATE ${llvm_libs})
