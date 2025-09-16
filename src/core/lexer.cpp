@@ -21,6 +21,10 @@ int gettok() {
             return tok_def;
         } else if (GlobIdentifierStr == "extern") {
             return tok_extern;
+        } else if (GlobIdentifierStr == "if") {
+            return tok_if;
+        } else if (GlobIdentifierStr == "else") {
+            return tok_else;
         }
         return tok_identifier;
     }

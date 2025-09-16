@@ -63,7 +63,6 @@ class PrototypeAST : public ExprAST {
     std::string getName() { return Name; }
     llvm::Function *codegen() override;
 };
-
 class FunctionAST : public ExprAST {
     std::unique_ptr<PrototypeAST> Proto;
     std::unique_ptr<ExprAST> Body;
@@ -72,4 +71,16 @@ class FunctionAST : public ExprAST {
     FunctionAST(std::unique_ptr<PrototypeAST> Proto, std::unique_ptr<ExprAST> body)
         : Proto(std::move(Proto)), Body(std::move(body)) {}
     llvm::Function *codegen() override;
+};
+
+class IfExprAST : public ExprAST {
+    std::unique_ptr<ExprAST> cond_;
+    std::unique_ptr<ExprAST> then_br_;
+    std::unique_ptr<ExprAST> else_br_;
+
+  public:
+    IfExprAST(std::unique_ptr<ExprAST> cond, std::unique_ptr<ExprAST> then_br,
+              std::unique_ptr<ExprAST> else_br)
+        : cond_(std::move(cond)), then_br_(std::move(then_br)), else_br_(std::move(else_br)) {}
+    llvm::Value *codegen() override;
 };

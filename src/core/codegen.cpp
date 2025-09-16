@@ -1,8 +1,13 @@
 #include "ast.h"
 #include "global.h"
 #include "util.h"
+#include <llvm-14/llvm/ADT/APFloat.h>
 #include <llvm-14/llvm/IR/Attributes.h>
 #include <llvm-14/llvm/IR/BasicBlock.h>
+#include <llvm-14/llvm/IR/Constant.h>
+#include <llvm-14/llvm/IR/Constants.h>
+#include <llvm-14/llvm/IR/Type.h>
+#include <llvm-14/llvm/IR/Use.h>
 #include <llvm-14/llvm/IR/Verifier.h>
 
 llvm::Value *NumberExprAST::codegen() {
@@ -124,4 +129,51 @@ llvm::Function *FunctionAST::codegen() {
     // Error reading body, remove function
     TheFunction->eraseFromParent();
     return nullptr;
+}
+
+llvm::Value *IfExprAST::codegen() {
+    auto *cond_v = cond_->codegen();
+    if (!cond_v) {
+        return nullptr;
+    }
+    auto *if_true = Builder->CreateFCmpONE(
+        cond_v, llvm::ConstantFP::get(*TheContext, llvm::APFloat(0.0)), "ifcond");
+    llvm::Function *func = Builder->GetInsertBlock()->getParent();
+
+    // Create blocks for the then and else cases. Insert the 'then' block at the end of the
+    // function.
+    llvm::BasicBlock *then_bb = llvm::BasicBlock::Create(*TheContext, "then", func);
+    llvm::BasicBlock *else_bb = llvm::BasicBlock::Create(*TheContext, "else");
+    llvm::BasicBlock *merge_bb = llvm::BasicBlock::Create(*TheContext, "ifcont");
+
+    Builder->CreateCondBr(if_true, then_bb, else_bb);
+
+    // Emit then block.
+    Builder->SetInsertPoint(then_bb);
+    llvm::Value *then_v = then_br_->codegen();
+    if (!then_v) {
+        return nullptr;
+    }
+    Builder->CreateBr(merge_bb);
+    // Codegen of 'then' can change the current block, udpate then_bb for the Phi.
+    then_bb = Builder->GetInsertBlock();
+
+    // Emit else block.
+    func->getBasicBlockList().push_back(else_bb);
+    Builder->SetInsertPoint(else_bb);
+    llvm::Value *else_v = else_br_->codegen();
+    if (!else_v) {
+        return nullptr;
+    }
+    Builder->CreateBr(merge_bb);
+    // Codegen of 'else' can change the current block, udpate else_bb for the Phi.
+    else_bb = Builder->GetInsertBlock();
+
+    // Emit merge block.
+    func->getBasicBlockList().push_back(merge_bb);
+    Builder->SetInsertPoint(merge_bb);
+    llvm::PHINode *phi_node = Builder->CreatePHI(llvm::Type::getDoubleTy(*TheContext), 2, "iftmp");
+    phi_node->addIncoming(then_v, then_bb);
+    phi_node->addIncoming(else_v, else_bb);
+    return phi_node;
 }

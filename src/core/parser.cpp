@@ -5,18 +5,20 @@
 #include <llvm-14/llvm/Transforms/InstCombine/InstCombine.h>
 #include <llvm-14/llvm/Transforms/Scalar.h>
 #include <llvm-14/llvm/Transforms/Scalar/GVN.h>
+#include <memory>
 
-/// numberexpr ::= number
+/// number-expr ::= number
 std::unique_ptr<ExprAST> ParseNumberExpr() {
     auto Result = std::make_unique<NumberExprAST>(GlobNumVal);
     getNextToken(); // consume the number
     return std::move(Result);
 }
 
-/// parenexpr ::= '(' expression ')'
+/// parentheses-expr ::= '(' expression ')'
 std::unique_ptr<ExprAST> ParseExpression();
 std::unique_ptr<ExprAST> ParseParenExpr() {
-    getNextToken();
+    assert(GlobCurTok == '(');
+    getNextToken(); // eat '('
     auto v = ParseExpression();
     if (!v) {
         return nullptr;
@@ -28,7 +30,7 @@ std::unique_ptr<ExprAST> ParseParenExpr() {
     return v;
 }
 
-/// identifierexpr
+/// identifier-expr
 ///   ::= variable
 ///   ::= callexpr
 /// variable
@@ -64,10 +66,47 @@ std::unique_ptr<ExprAST> ParseIdentifierExpr() {
     return std::make_unique<CallExprAST>(ident, std::move(args));
 }
 
-/// primaryexpr
-///   ::= identifierexpr
-///   ::= numberexpr
-///   ::= parenexpr
+std::unique_ptr<ExprAST> ParsePrimaryExpr();
+
+/// if-expr
+///   ::= if parentheses-expr primary-expr else primary-expr
+std::unique_ptr<ExprAST> ParseIfExpr() {
+    assert(GlobCurTok == tok_if);
+
+    // Parse condition.
+    getNextToken(); // eat 'if'
+    if (GlobCurTok != '(') {
+        return LogError("expected '('");
+    }
+    std::unique_ptr<ExprAST> cond = ParseParenExpr();
+    if (!cond) {
+        return nullptr;
+    }
+
+    // Parse then branch.
+    std::unique_ptr<ExprAST> then_br = ParsePrimaryExpr();
+    if (!then_br) {
+        return nullptr;
+    }
+
+    // Parse else branch.
+    if (GlobCurTok != tok_else) {
+        return LogError("expected 'else'");
+    }
+    getNextToken(); // eat 'else'
+    std::unique_ptr<ExprAST> else_br = ParsePrimaryExpr();
+    if (!else_br) {
+        return nullptr;
+    }
+
+    return std::make_unique<IfExprAST>(std::move(cond), std::move(then_br), std::move(else_br));
+}
+
+/// primary-expr
+///   ::= identifier-expr
+///   ::= number-expr
+///   ::= parentheses-expr
+///   ::= if-expr
 std::unique_ptr<ExprAST> ParsePrimaryExpr() {
     switch (GlobCurTok) {
     default:
@@ -78,6 +117,8 @@ std::unique_ptr<ExprAST> ParsePrimaryExpr() {
         return ParseNumberExpr();
     case '(':
         return ParseParenExpr();
+    case tok_if:
+        return ParseIfExpr();
     }
 }
 
