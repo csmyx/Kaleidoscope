@@ -69,7 +69,7 @@ std::unique_ptr<ExprAST> ParseIdentifierExpr() {
 std::unique_ptr<ExprAST> ParsePrimaryExpr();
 
 /// if-expr
-///   ::= if parentheses-expr primary-expr else primary-expr
+///   ::= if '(' expression ')' expression else expression
 std::unique_ptr<ExprAST> ParseIfExpr() {
     assert(GlobCurTok == tok_if);
 
@@ -78,13 +78,18 @@ std::unique_ptr<ExprAST> ParseIfExpr() {
     if (GlobCurTok != '(') {
         return LogError("expected '('");
     }
-    std::unique_ptr<ExprAST> cond = ParseParenExpr();
+    getNextToken(); // eat '('
+    std::unique_ptr<ExprAST> cond = ParseExpression();
     if (!cond) {
         return nullptr;
     }
+    if (GlobCurTok != ')') {
+        return LogError("expected ')'");
+    }
+    getNextToken(); // eat ')'
 
     // Parse then branch.
-    std::unique_ptr<ExprAST> then_br = ParsePrimaryExpr();
+    std::unique_ptr<ExprAST> then_br = ParseExpression();
     if (!then_br) {
         return nullptr;
     }
@@ -94,7 +99,7 @@ std::unique_ptr<ExprAST> ParseIfExpr() {
         return LogError("expected 'else'");
     }
     getNextToken(); // eat 'else'
-    std::unique_ptr<ExprAST> else_br = ParsePrimaryExpr();
+    std::unique_ptr<ExprAST> else_br = ParseExpression();
     if (!else_br) {
         return nullptr;
     }
