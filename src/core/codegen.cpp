@@ -101,9 +101,6 @@ llvm::Function *FunctionAST::codegen() {
     llvm::Function *TheFunction = getFunction(p.getName());
 
     if (!TheFunction) {
-        TheFunction = Proto->codegen();
-    }
-    if (!TheFunction) {
         return nullptr;
     }
 

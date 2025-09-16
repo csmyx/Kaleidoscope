@@ -1,5 +1,5 @@
 #include "Kaleidoscope.h"
-#include "core/global.h"
+#include "global.h"
 #include <fmt/core.h>
 
 int main() {
