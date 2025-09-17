@@ -32,8 +32,21 @@
 #include <llvm-14/llvm/ExecutionEngine/Orc/ThreadSafeModule.h>
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
+
+// token precedence
+#define INVALID_TOK_PREC -1
+#define COMPARE_OP_PREC 10        // precedence for: '<', '>'
+#define SUM_OP_PREC 20            // precedence for: '+', '-'
+#define MUL_OP_PREC 30            // precedence for: '*', '/'
+#define DEFAULT_BINARY_OP_PREC 40 // default precedence for user defined binary op
+
+// prototype kind
+#define ID_PROTOTYPE_KIND 0
+#define UNARY_PROTOTYPE_KIND 1
+#define BINARY_PROTOTYPE_KIND 2
 
 // tokenizer
 enum token {
@@ -47,6 +60,9 @@ enum token {
     tok_else = -7,
     // loop
     tok_for = -8,
+    // operator
+    tok_unary = -9,
+    tok_binary = -10,
 };
 extern std::string GlobIdentifierStr;
 extern double GlobNumVal;
@@ -70,6 +86,7 @@ extern std::unique_ptr<llvm::legacy::FunctionPassManager> TheFPM;
 // extern std::unique_ptr<llvm::StandardInstrumentations> TheSI;
 class PrototypeAST;
 extern std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
+extern std::map<char, int> BinopPrecedence;
 extern llvm::ExitOnError ExitOnErr;
 extern std::unique_ptr<llvm::orc::KaleidoscopeJIT> TheJIT;
 void InitializeModuleAndManager();

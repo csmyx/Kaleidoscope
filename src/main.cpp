@@ -1,6 +1,5 @@
 #include "Kaleidoscope.h"
 #include "global.h"
-#include <fmt/core.h>
 
 int main() {
     llvm::InitializeNativeTarget();
@@ -8,10 +7,6 @@ int main() {
     llvm::InitializeNativeTargetAsmParser();
 
     TheJIT = ExitOnErr(llvm::orc::KaleidoscopeJIT::Create());
-
-    // Prime the first token.
-    fmt::print(stderr, "ready> ");
-    getNextToken();
 
     // Make the module, which holds all the code.
     InitializeModuleAndManager();

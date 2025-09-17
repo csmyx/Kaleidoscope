@@ -20,5 +20,6 @@ std::unique_ptr<llvm::legacy::FunctionPassManager> TheFPM;
 // std::unique_ptr<llvm::PassInstrumentationCallbacks> ThePIC;
 // std::unique_ptr<llvm::StandardInstrumentations> TheSI;
 std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
+std::map<char, int> BinopPrecedence;
 llvm::ExitOnError ExitOnErr;
 std::unique_ptr<llvm::orc::KaleidoscopeJIT> TheJIT;

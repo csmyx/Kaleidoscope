@@ -27,6 +27,10 @@ int gettok() {
             return tok_else;
         } else if (GlobIdentifierStr == "for") {
             return tok_for;
+        } else if (GlobIdentifierStr == "unary") {
+            return tok_unary;
+        } else if (GlobIdentifierStr == "binary") {
+            return tok_binary;
         }
         return tok_identifier;
     }

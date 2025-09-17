@@ -7,6 +7,7 @@
 #include <llvm-14/llvm/IR/BasicBlock.h>
 #include <llvm-14/llvm/IR/Constant.h>
 #include <llvm-14/llvm/IR/Constants.h>
+#include <llvm-14/llvm/IR/Function.h>
 #include <llvm-14/llvm/IR/Instructions.h>
 #include <llvm-14/llvm/IR/Type.h>
 #include <llvm-14/llvm/IR/Use.h>
@@ -23,6 +24,36 @@ llvm::Value *VariableAST::codegen() {
         return LogErrorV("Unknown variable name");
     }
     return v;
+}
+
+llvm::Function *getFunction(std::string name) {
+    // First see if the function has already been added to the current module.
+    if (auto *f = TheModule->getFunction(name)) {
+        return f;
+    }
+
+    // If not, check wherther we can codegen the declaration form some existing prototype.
+    auto iter = FunctionProtos.find(name);
+    if (iter != FunctionProtos.end()) {
+        return iter->second->codegen();
+    }
+
+    // If no existing prototype exists, return null.
+    return nullptr;
+}
+
+llvm::Value *UnaryExprAST::codegen() {
+    llvm::Value *operand_v = operand_->codegen();
+    if (!operand_v)
+        return nullptr;
+
+    // Parse user defined binary op.
+    llvm::Function *fn = getFunction(std::string("unary") + op_);
+    if (!fn) {
+        return LogErrorV("Unknown unary operator");
+    }
+
+    return Builder->CreateCall(fn, operand_v, "unop");
 }
 
 llvm::Value *BinaryExprAST::codegen() {
@@ -48,24 +79,15 @@ llvm::Value *BinaryExprAST::codegen() {
     case '*':
         return Builder->CreateFMul(LHS, RHS, "multmp");
     default:
+        break;
+    }
+
+    // Parse user defined binary op.
+    llvm::Function *fn = getFunction(std::string("binary") + Op);
+    if (!fn) {
         return LogErrorV("Invalid binary operator");
     }
-}
-
-llvm::Function *getFunction(std::string name) {
-    // First see if the function has already been added to the current module.
-    if (auto *f = TheModule->getFunction(name)) {
-        return f;
-    }
-
-    // If not, check wherther we can codegen the declaration form some existing prototype.
-    auto iter = FunctionProtos.find(name);
-    if (iter != FunctionProtos.end()) {
-        return iter->second->codegen();
-    }
-
-    // If no existing prototype exists, return null.
-    return nullptr;
+    return Builder->CreateCall(fn, {LHS, RHS}, "binop");
 }
 
 llvm::Value *CallExprAST::codegen() {
@@ -88,15 +110,15 @@ llvm::Value *CallExprAST::codegen() {
 }
 
 llvm::Function *PrototypeAST::codegen() {
-    std::vector<llvm::Type *> Doubles(Args.size(), llvm::Type::getDoubleTy(*TheContext));
+    std::vector<llvm::Type *> Doubles(args_.size(), llvm::Type::getDoubleTy(*TheContext));
     llvm::FunctionType *FT =
         llvm::FunctionType::get(llvm::Type::getDoubleTy(*TheContext), Doubles, false);
     llvm::Function *F =
-        llvm::Function::Create(FT, llvm::Function::ExternalLinkage, Name, TheModule.get());
+        llvm::Function::Create(FT, llvm::Function::ExternalLinkage, name_, TheModule.get());
 
     unsigned Idx = 0;
     for (auto &Arg : F->args()) {
-        Arg.setName(Args[Idx++]);
+        Arg.setName(args_[Idx++]);
     }
     return F;
 }
@@ -104,33 +126,41 @@ llvm::Function *PrototypeAST::codegen() {
 llvm::Function *FunctionAST::codegen() {
     // Transfer ownership of the prototype to the FunctionProtos map, but keep a reference to it for
     // use below.
-    auto &p = *Proto;
-    FunctionProtos[Proto->getName()] = std::move(Proto);
-    llvm::Function *TheFunction = getFunction(p.getName());
+    PrototypeAST &proto = *proto_;
+    FunctionProtos[proto_->getName()] = std::move(proto_);
+    llvm::Function *fn = getFunction(proto.getName());
 
-    if (!TheFunction) {
+    if (!fn) {
         return nullptr;
     }
 
-    llvm::BasicBlock *BB = llvm::BasicBlock::Create(*TheContext, "entry", TheFunction);
+    // install binary operator precedence.
+    if (proto.isBinaryOp()) {
+        BinopPrecedence[proto.getOpName()] = proto.getBinaryPrecedence();
+    }
+
+    llvm::BasicBlock *BB = llvm::BasicBlock::Create(*TheContext, "entry", fn);
     Builder->SetInsertPoint(BB);
 
     NamedValues.clear();
-    for (auto &Arg : TheFunction->args()) {
+    for (auto &Arg : fn->args()) {
         NamedValues[std::string(Arg.getName())] = &Arg;
     }
 
-    if (llvm::Value *RetVal = Body->codegen()) {
+    if (llvm::Value *RetVal = body_->codegen()) {
         // Finish off the function
         Builder->CreateRet(RetVal);
 
-        llvm::verifyFunction(*TheFunction);
+        llvm::verifyFunction(*fn);
 
-        return TheFunction;
+        return fn;
     }
 
-    // Error reading body, remove function
-    TheFunction->eraseFromParent();
+    // Error handling when function codegen failed.
+    fn->eraseFromParent();
+    if (proto.isBinaryOp()) {
+        BinopPrecedence.erase(proto.getOpName());
+    }
     return nullptr;
 }
 

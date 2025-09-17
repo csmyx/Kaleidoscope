@@ -1,11 +1,14 @@
 #include "Kaleidoscope.h"
+#include "ast.h"
 #include "fmt/core.h"
 #include "global.h"
 #include "util.h"
+#include <llvm-14/llvm/ADT/StringExtras.h>
 #include <llvm-14/llvm/Transforms/InstCombine/InstCombine.h>
 #include <llvm-14/llvm/Transforms/Scalar.h>
 #include <llvm-14/llvm/Transforms/Scalar/GVN.h>
 #include <memory>
+#include <optional>
 
 #define EXPECT_AND_EAT_TOKEN(tok)                                                                  \
     do {                                                                                           \
@@ -15,14 +18,14 @@
         getNextToken();                                                                            \
     } while (0)
 
-/// number-expr ::= number
+/// number_expr ::= number
 std::unique_ptr<ExprAST> ParseNumberExpr() {
     auto Result = std::make_unique<NumberExprAST>(GlobNumVal);
     getNextToken(); // consume the number
     return std::move(Result);
 }
 
-/// parentheses-expr ::= '(' expression ')'
+/// parentheses_expr ::= '(' expression ')'
 std::unique_ptr<ExprAST> ParseExpression();
 std::unique_ptr<ExprAST> ParseParenExpr() {
     assert(GlobCurTok == '(');
@@ -38,7 +41,7 @@ std::unique_ptr<ExprAST> ParseParenExpr() {
     return v;
 }
 
-/// identifier-expr
+/// identifier_expr
 ///   ::= variable
 ///   ::= callexpr
 /// variable
@@ -74,9 +77,7 @@ std::unique_ptr<ExprAST> ParseIdentifierExpr() {
     return std::make_unique<CallExprAST>(ident, std::move(args));
 }
 
-std::unique_ptr<ExprAST> ParsePrimaryExpr();
-
-/// if-expr ::= if '(' expression ')' expression else expression
+/// if_expr ::= if '(' expression ')' expression else expression
 std::unique_ptr<ExprAST> ParseIfExpr() {
     assert(GlobCurTok == tok_if);
     getNextToken(); // eat 'if'
@@ -114,16 +115,16 @@ std::unique_ptr<ExprAST> ParseIfExpr() {
     return std::make_unique<IfExprAST>(std::move(cond), std::move(then_br), std::move(else_br));
 }
 
-/// for-expr  ::= for '(' init-expr ';' expression ';' step-expr ')' expression else expression
-/// init-expr ::= identifier-expr '=' expression
-/// step-expr ::= expression*
+/// for_expr  ::= for '(' init_expr ';' expression ';' step_expr ')' expression else expression
+/// init_expr ::= identifier_expr '=' expression
+/// step_expr ::= expression*
 std::unique_ptr<ExprAST> ParseForExpr() {
     assert(GlobCurTok == tok_for);
     getNextToken(); // eat 'for'
 
     EXPECT_AND_EAT_TOKEN('(');
 
-    // Parse init-expr.
+    // Parse init_expr.
     if (GlobCurTok != tok_identifier) {
         return LogError("expected: identifier");
     }
@@ -147,7 +148,7 @@ std::unique_ptr<ExprAST> ParseForExpr() {
 
     EXPECT_AND_EAT_TOKEN(';');
 
-    // Parse step-expr.
+    // Parse step_expr.
     std::unique_ptr<ExprAST> step{};
     if (GlobCurTok != ')') {
         step = ParseExpression();
@@ -169,12 +170,12 @@ std::unique_ptr<ExprAST> ParseForExpr() {
                                         std::move(body));
 }
 
-/// primary-expr
-///   ::= identifier-expr
-///   ::= number-expr
-///   ::= parentheses-expr
-///   ::= if-expr
-///   ::= for-expr
+/// primary_expr
+///   ::= identifier_expr
+///   ::= number_expr
+///   ::= parentheses_expr
+///   ::= if_expr
+///   ::= for_expr
 std::unique_ptr<ExprAST> ParsePrimaryExpr() {
     switch (GlobCurTok) {
     default:
@@ -192,21 +193,31 @@ std::unique_ptr<ExprAST> ParsePrimaryExpr() {
     }
 }
 
-#define INVALID_TOK_PREC -1
 int GetCurTokPrecedence() {
-    switch (GlobCurTok) {
-    case '<':
-    case '>':
-        return 10;
-    case '+':
-    case '-':
-        return 20;
-    case '*':
-    case '/':
-        return 40;
-    default:
-        return INVALID_TOK_PREC;
+    auto iter = BinopPrecedence.find(GlobCurTok);
+    if (iter != BinopPrecedence.end()) {
+        return iter->second;
     }
+    return INVALID_TOK_PREC;
+}
+
+static inline bool isPrimaryTok() { return !llvm::isASCII(GlobCurTok) || GlobCurTok == '('; }
+
+/// unary_expr
+///   ::= primary_expr
+///   ::= unary_op unary_expr
+std::unique_ptr<ExprAST> ParseUnaryExpr() {
+    // check if current tok is unary operator
+    if (isPrimaryTok() || GlobCurTok == ',') {
+        return ParsePrimaryExpr();
+    } else {
+        int unary_op = GlobCurTok;
+        getNextToken(); // eat unary_op
+        if (auto operand = ParseUnaryExpr()) {
+            return std::make_unique<UnaryExprAST>(unary_op, std::move(operand));
+        }
+    }
+    return nullptr;
 }
 
 /// parse BinOpExpr that start from [LHS], and end at a token with precedence strictly less than
@@ -219,7 +230,7 @@ std::unique_ptr<ExprAST> ParseBinOpRHS(int TokPrec, std::unique_ptr<ExprAST> LHS
         }
         int BinOp = GlobCurTok;
         getNextToken(); // eat binop
-        auto RHS = ParsePrimaryExpr();
+        auto RHS = ParseUnaryExpr();
         int NextPrec = GetCurTokPrecedence();
         if (CurPrec < NextPrec) {
             RHS = ParseBinOpRHS(CurPrec + 1, std::move(RHS));
@@ -231,10 +242,10 @@ std::unique_ptr<ExprAST> ParseBinOpRHS(int TokPrec, std::unique_ptr<ExprAST> LHS
 }
 
 /// expression
-///   ::= primary binoprhs
+///   ::= unary_expr [binop unary_expr]*
 ///
 std::unique_ptr<ExprAST> ParseExpression() {
-    auto v = ParsePrimaryExpr();
+    auto v = ParseUnaryExpr();
     if (!v) {
         return nullptr;
     }
@@ -253,27 +264,74 @@ std::unique_ptr<FunctionAST> ParseTopLevelExpr() {
 
 /// prototype
 ///   ::= identifier '(' identifier* ')'
+///   ::= unary LETTER '(' identifier ')'
+///   ::= binary LETTER number? '(' identifier, identifier ')'
 std::unique_ptr<PrototypeAST> ParsePrototype() {
-    if (GlobCurTok != tok_identifier)
-        return LogErrorP("Expected function name in prototype");
 
-    std::string Name = GlobIdentifierStr;
-    getNextToken();
+    std::string fn_name;
+    unsigned kind = ID_PROTOTYPE_KIND;
+    std::optional<unsigned> binary_prec = std::nullopt;
+
+    switch (GlobCurTok) {
+    default:
+        return LogErrorP("Expected function name in prototype");
+    case tok_identifier:
+        fn_name = GlobIdentifierStr;
+        kind = ID_PROTOTYPE_KIND;
+        getNextToken();
+        break;
+    case tok_unary:
+        getNextToken();
+        if (!llvm::isASCII(GlobCurTok)) {
+            return LogErrorP("Expected unary operator");
+        }
+        fn_name = "unary";
+        fn_name += (char)GlobCurTok;
+        kind = UNARY_PROTOTYPE_KIND;
+        getNextToken();
+        break;
+    case tok_binary:
+        getNextToken();
+        if (!llvm::isASCII(GlobCurTok)) {
+            return LogErrorP("Expected binary operator");
+        }
+        fn_name = "binary";
+        fn_name += (char)GlobCurTok;
+        kind = BINARY_PROTOTYPE_KIND;
+        getNextToken();
+
+        // Set binary op precedence if present, otherwise set to default.
+        if (GlobCurTok == tok_number) {
+            if (GlobNumVal < 1 || GlobNumVal > 100) {
+                return LogErrorP("Invalid binary precedence, must be in [1,100]");
+            }
+            binary_prec = (unsigned)GlobNumVal;
+            getNextToken();
+        } else {
+            binary_prec = DEFAULT_BINARY_OP_PREC;
+        }
+        break;
+    };
 
     if (GlobCurTok != '(') {
         return LogErrorP("expected: '(' in prototype");
     }
     getNextToken();
-    std::vector<std::string> Args;
+    std::vector<std::string> args;
     while (GlobCurTok == tok_identifier) {
-        Args.push_back(GlobIdentifierStr);
+        args.push_back(GlobIdentifierStr);
         getNextToken();
     }
     if (GlobCurTok != ')') {
         return LogErrorP("expected: ')' in prototype");
     }
     getNextToken(); // eat ')'
-    return std::make_unique<PrototypeAST>(Name, std::move(Args));
+
+    // Verify args count for operator.
+    if (kind && args.size() != kind) {
+        return LogErrorP("Invalid number of operands for operator");
+    }
+    return std::make_unique<PrototypeAST>(fn_name, std::move(args), kind, binary_prec);
 }
 
 /// definition ::= 'def' prototype expression
@@ -300,8 +358,8 @@ void HandleDefinition() {
             fprintf(stderr, "Read function definition:\n");
             FnIR->print(llvm::errs());
             fprintf(stderr, "\n");
-            ExitOnErr(TheJIT->addModule(
-                llvm::orc::ThreadSafeModule(std::move(TheModule), std::move(TheContext))));
+            auto TSM = llvm::orc::ThreadSafeModule(std::move(TheModule), std::move(TheContext));
+            ExitOnErr(TheJIT->addModule(std::move(TSM)));
             InitializeModuleAndManager();
         }
     } else {
@@ -384,10 +442,20 @@ void InitializeModuleAndManager() {
     TheFPM->doInitialization();
 }
 
+static void initParse() {
+    BinopPrecedence['<'] = BinopPrecedence['>'] = COMPARE_OP_PREC;
+    BinopPrecedence['+'] = BinopPrecedence['-'] = SUM_OP_PREC;
+    BinopPrecedence['*'] = BinopPrecedence['/'] = MUL_OP_PREC;
+    // Prime the first token.
+    fmt::print(stderr, "ready> ");
+    getNextToken();
+}
+
 /// top ::= definition | external | expression | ';'
 void ParseMainLoop() {
+    initParse();
+    bool isTerminal = isatty(STDIN_FILENO);
     while (true) {
-        fmt::print(stderr, "ready> ");
         switch (GlobCurTok) {
         case tok_eof:
             return;
@@ -403,6 +471,9 @@ void ParseMainLoop() {
         default:
             HandleTopLevelExpression();
             break;
+        }
+        if (isTerminal) {
+            fmt::print(stderr, "ready> ");
         }
     }
 }
