@@ -7,6 +7,14 @@
 #include <llvm-14/llvm/Transforms/Scalar/GVN.h>
 #include <memory>
 
+#define EXPECT_AND_EAT_TOKEN(tok)                                                                  \
+    do {                                                                                           \
+        if (GlobCurTok != tok) {                                                                   \
+            return LogError("expected: " #tok);                                                    \
+        }                                                                                          \
+        getNextToken();                                                                            \
+    } while (0)
+
 /// number-expr ::= number
 std::unique_ptr<ExprAST> ParseNumberExpr() {
     auto Result = std::make_unique<NumberExprAST>(GlobNumVal);
@@ -24,7 +32,7 @@ std::unique_ptr<ExprAST> ParseParenExpr() {
         return nullptr;
     }
     if (GlobCurTok != ')') {
-        return LogError("expected ')'");
+        return LogError("expected: ')'");
     }
     getNextToken();
     return v;
@@ -56,7 +64,7 @@ std::unique_ptr<ExprAST> ParseIdentifierExpr() {
                 break;
             }
             if (GlobCurTok != ',') {
-                return LogError("expected ')' or ',' in argment list");
+                return LogError("expected: ')' or ',' in argment list");
             }
             getNextToken(); // eat ','
         }
@@ -68,15 +76,14 @@ std::unique_ptr<ExprAST> ParseIdentifierExpr() {
 
 std::unique_ptr<ExprAST> ParsePrimaryExpr();
 
-/// if-expr
-///   ::= if '(' expression ')' expression else expression
+/// if-expr ::= if '(' expression ')' expression else expression
 std::unique_ptr<ExprAST> ParseIfExpr() {
     assert(GlobCurTok == tok_if);
+    getNextToken(); // eat 'if'
 
     // Parse condition.
-    getNextToken(); // eat 'if'
     if (GlobCurTok != '(') {
-        return LogError("expected '('");
+        return LogError("expected: '('");
     }
     getNextToken(); // eat '('
     std::unique_ptr<ExprAST> cond = ParseExpression();
@@ -84,7 +91,7 @@ std::unique_ptr<ExprAST> ParseIfExpr() {
         return nullptr;
     }
     if (GlobCurTok != ')') {
-        return LogError("expected ')'");
+        return LogError("expected: ')'");
     }
     getNextToken(); // eat ')'
 
@@ -96,7 +103,7 @@ std::unique_ptr<ExprAST> ParseIfExpr() {
 
     // Parse else branch.
     if (GlobCurTok != tok_else) {
-        return LogError("expected 'else'");
+        return LogError("expected: 'else'");
     }
     getNextToken(); // eat 'else'
     std::unique_ptr<ExprAST> else_br = ParseExpression();
@@ -107,11 +114,67 @@ std::unique_ptr<ExprAST> ParseIfExpr() {
     return std::make_unique<IfExprAST>(std::move(cond), std::move(then_br), std::move(else_br));
 }
 
+/// for-expr  ::= for '(' init-expr ';' expression ';' step-expr ')' expression else expression
+/// init-expr ::= identifier-expr '=' expression
+/// step-expr ::= expression*
+std::unique_ptr<ExprAST> ParseForExpr() {
+    assert(GlobCurTok == tok_for);
+    getNextToken(); // eat 'for'
+
+    EXPECT_AND_EAT_TOKEN('(');
+
+    // Parse init-expr.
+    if (GlobCurTok != tok_identifier) {
+        return LogError("expected: identifier");
+    }
+    std::string var_name = GlobIdentifierStr;
+    getNextToken();
+
+    EXPECT_AND_EAT_TOKEN('=');
+
+    std::unique_ptr<ExprAST> init = ParseExpression();
+    if (!init) {
+        return nullptr;
+    }
+
+    EXPECT_AND_EAT_TOKEN(';');
+
+    // Parse condtion.
+    std::unique_ptr<ExprAST> cond = ParseExpression();
+    if (!cond) {
+        return nullptr;
+    }
+
+    EXPECT_AND_EAT_TOKEN(';');
+
+    // Parse step-expr.
+    std::unique_ptr<ExprAST> step{};
+    if (GlobCurTok != ')') {
+        step = ParseExpression();
+        if (!step) {
+            return nullptr;
+        }
+        getNextToken();
+    }
+
+    EXPECT_AND_EAT_TOKEN(')');
+
+    // Parse body.
+    std::unique_ptr<ExprAST> body = ParseExpression();
+    if (!body) {
+        return nullptr;
+    }
+
+    return std::make_unique<ForExprAST>(var_name, std::move(init), std::move(cond), std::move(step),
+                                        std::move(body));
+}
+
 /// primary-expr
 ///   ::= identifier-expr
 ///   ::= number-expr
 ///   ::= parentheses-expr
 ///   ::= if-expr
+///   ::= for-expr
 std::unique_ptr<ExprAST> ParsePrimaryExpr() {
     switch (GlobCurTok) {
     default:
@@ -124,6 +187,8 @@ std::unique_ptr<ExprAST> ParsePrimaryExpr() {
         return ParseParenExpr();
     case tok_if:
         return ParseIfExpr();
+    case tok_for:
+        return ParseForExpr();
     }
 }
 
@@ -196,7 +261,7 @@ std::unique_ptr<PrototypeAST> ParsePrototype() {
     getNextToken();
 
     if (GlobCurTok != '(') {
-        return LogErrorP("expected '(' in prototype");
+        return LogErrorP("expected: '(' in prototype");
     }
     getNextToken();
     std::vector<std::string> Args;
@@ -205,7 +270,7 @@ std::unique_ptr<PrototypeAST> ParsePrototype() {
         getNextToken();
     }
     if (GlobCurTok != ')') {
-        return LogErrorP("expected ')' in prototype");
+        return LogErrorP("expected: ')' in prototype");
     }
     getNextToken(); // eat ')'
     return std::make_unique<PrototypeAST>(Name, std::move(Args));

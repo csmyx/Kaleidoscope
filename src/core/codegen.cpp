@@ -1,13 +1,16 @@
 #include "ast.h"
 #include "global.h"
 #include "util.h"
+#include <cstddef>
 #include <llvm-14/llvm/ADT/APFloat.h>
 #include <llvm-14/llvm/IR/Attributes.h>
 #include <llvm-14/llvm/IR/BasicBlock.h>
 #include <llvm-14/llvm/IR/Constant.h>
 #include <llvm-14/llvm/IR/Constants.h>
+#include <llvm-14/llvm/IR/Instructions.h>
 #include <llvm-14/llvm/IR/Type.h>
 #include <llvm-14/llvm/IR/Use.h>
+#include <llvm-14/llvm/IR/Value.h>
 #include <llvm-14/llvm/IR/Verifier.h>
 
 llvm::Value *NumberExprAST::codegen() {
@@ -132,21 +135,22 @@ llvm::Function *FunctionAST::codegen() {
 }
 
 llvm::Value *IfExprAST::codegen() {
-    auto *cond_v = cond_->codegen();
+    // Compute condition, and convert condition to a bool by comparing not-eqaul to 0.0.
+    llvm::Value *cond_v = cond_->codegen();
     if (!cond_v) {
         return nullptr;
     }
-    auto *if_true = Builder->CreateFCmpONE(
-        cond_v, llvm::ConstantFP::get(*TheContext, llvm::APFloat(0.0)), "ifcond");
+    llvm::Value *predicate = Builder->CreateFCmpONE(
+        cond_v, llvm::ConstantFP::get(*TheContext, llvm::APFloat(0.0)), "if.cond");
     llvm::Function *func = Builder->GetInsertBlock()->getParent();
 
     // Create blocks for the then and else cases. Insert the 'then' block at the end of the
     // function.
-    llvm::BasicBlock *then_bb = llvm::BasicBlock::Create(*TheContext, "then", func);
-    llvm::BasicBlock *else_bb = llvm::BasicBlock::Create(*TheContext, "else");
-    llvm::BasicBlock *merge_bb = llvm::BasicBlock::Create(*TheContext, "ifcont");
+    llvm::BasicBlock *then_bb = llvm::BasicBlock::Create(*TheContext, "if.then", func);
+    llvm::BasicBlock *else_bb = llvm::BasicBlock::Create(*TheContext, "if.else");
+    llvm::BasicBlock *merge_bb = llvm::BasicBlock::Create(*TheContext, "if.cont");
 
-    Builder->CreateCondBr(if_true, then_bb, else_bb);
+    Builder->CreateCondBr(predicate, then_bb, else_bb);
 
     // Emit then block.
     Builder->SetInsertPoint(then_bb);
@@ -155,7 +159,7 @@ llvm::Value *IfExprAST::codegen() {
         return nullptr;
     }
     Builder->CreateBr(merge_bb);
-    // Codegen of 'then' can change the current block, udpate then_bb for the Phi.
+    // Codegen of 'then_br_' can change the current block, udpate then_bb for the Phi.
     then_bb = Builder->GetInsertBlock();
 
     // Emit else block.
@@ -166,7 +170,7 @@ llvm::Value *IfExprAST::codegen() {
         return nullptr;
     }
     Builder->CreateBr(merge_bb);
-    // Codegen of 'else' can change the current block, udpate else_bb for the Phi.
+    // Codegen of 'else_br_' can change the current block, udpate else_bb for the Phi.
     else_bb = Builder->GetInsertBlock();
 
     // Emit merge block.
@@ -176,4 +180,85 @@ llvm::Value *IfExprAST::codegen() {
     phi_node->addIncoming(then_v, then_bb);
     phi_node->addIncoming(else_v, else_bb);
     return phi_node;
+}
+
+llvm::Value *ForExprAST::codegen() {
+    // Emit the start code first, without 'variable' in scope.
+    llvm::Value *init_v = init_->codegen();
+    if (!init_v) {
+        return nullptr;
+    }
+
+    llvm::Function *func = Builder->GetInsertBlock()->getParent();
+    llvm::BasicBlock *pre_bb = Builder->GetInsertBlock();
+
+    // 1. Basic BLock of Entry, include iter_variable init codegen and cond condition codegen.
+    llvm::BasicBlock *entry_bb = llvm::BasicBlock::Create(*TheContext, "forentry", func);
+    Builder->SetInsertPoint(pre_bb);
+    Builder->CreateBr(entry_bb); // jump to entry bb from previous bb
+
+    auto *pre_bb_tail = Builder->GetInsertBlock();
+    Builder->SetInsertPoint(entry_bb);
+    // Start the Phi node with an entry for init.
+    llvm::PHINode *iter_var =
+        Builder->CreatePHI(llvm::Type::getDoubleTy(*TheContext), 2, var_name_);
+    iter_var->addIncoming(init_v, pre_bb_tail);
+
+    // Within the loop, the variable is defined equal to the Phi node. If it shadows an existing
+    // variable, we have to restor it, so save it now.
+    llvm::Value *old_val = NamedValues[var_name_];
+    NamedValues[var_name_] = iter_var;
+
+    // Emit cond codegen, convert cond to a bool by comparing not-eqaul to 0.0.
+    llvm::Value *cond_v = cond_->codegen();
+    if (!cond_v) {
+        return nullptr;
+    }
+
+    Builder->SetInsertPoint(entry_bb); // reset insert point in case of
+    llvm::Value *predicate = Builder->CreateFCmpONE(
+        cond_v, llvm::ConstantFP::get(*TheContext, llvm::APFloat(0.0)), "forcond");
+
+    llvm::BasicBlock *body_bb = llvm::BasicBlock::Create(*TheContext, "forbody", func);
+    llvm::BasicBlock *post_bb = llvm::BasicBlock::Create(*TheContext, "forcont", func);
+    Builder->CreateCondBr(predicate, body_bb, post_bb);
+
+    // 2. Basic Block of body.
+    Builder->SetInsertPoint(body_bb);
+
+    // Emit the body of the loop. This, like any other expr, can change the current BB. Note
+    // that we ignore the value computed by the body, bud don't allow an error.
+    if (!body_->codegen()) {
+        return nullptr;
+    }
+
+    // Emit the step value.
+    llvm::Value *step_value = nullptr;
+    if (step_) {
+        step_value = step_->codegen();
+        if (!step_value) {
+            return nullptr;
+        }
+    } else {
+        // If not specified, default is 1.0.
+        step_value = llvm::ConstantFP::get(*TheContext, llvm::APFloat(1.0));
+    }
+
+    // Compute the next value.
+    llvm::Value *next_v = Builder->CreateFAdd(iter_var, step_value, "nextvar");
+    auto *body_bb_tail = Builder->GetInsertBlock();
+    iter_var->addIncoming(next_v, body_bb_tail);
+    Builder->CreateBr(entry_bb); // jump back to entry BB
+
+    // 3. exit.
+    Builder->SetInsertPoint(post_bb);
+
+    // Restore the unshadowed variable.
+    if (old_val) {
+        NamedValues[var_name_] = old_val;
+    } else {
+        NamedValues.erase(var_name_);
+    }
+    // for expr always returns 0.0.
+    return llvm::Constant::getNullValue(llvm::Type::getDoubleTy(*TheContext));
 }

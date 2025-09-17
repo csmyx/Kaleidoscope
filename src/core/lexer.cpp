@@ -25,6 +25,8 @@ int gettok() {
             return tok_if;
         } else if (GlobIdentifierStr == "else") {
             return tok_else;
+        } else if (GlobIdentifierStr == "for") {
+            return tok_for;
         }
         return tok_identifier;
     }

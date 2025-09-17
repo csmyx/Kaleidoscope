@@ -45,6 +45,8 @@ enum token {
     // control
     tok_if = -6,
     tok_else = -7,
+    // loop
+    tok_for = -8,
 };
 extern std::string GlobIdentifierStr;
 extern double GlobNumVal;
