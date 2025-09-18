@@ -30,7 +30,7 @@ def binary = 9 (LHS RHS)
 def binary : 1 (x y) y;
 
 
- def printdensity(d)
+def printdensity(d)
   if (d > 8)
     putchard(32)  # ' '
   else if (d > 4)
@@ -39,10 +39,6 @@ def binary : 1 (x y) y;
     putchard(43)  # '+'
   else
     putchard(42); # '*'
-
-printdensity(1): printdensity(2): printdensity(3):
-printdensity(4): printdensity(5): printdensity(9):
-putchard(10);
 
 # Determine whether the specific location diverges.
 # Solve for z = z^2 + c in the complex plane.

@@ -356,9 +356,9 @@ void HandleDefinition() {
     if (auto FnAST = ParseDefinition()) {
         if (auto *FnIR = FnAST->codegen()) {
             if constexpr (debug::show_llvm_ir) {
-                fprintf(stderr, "Read function definition:\n");
+                if constexpr (debug::show_prompt)
+                    fprintf(stderr, "Read function definition:\n");
                 FnIR->print(llvm::errs());
-                fprintf(stderr, "\n");
             }
             auto TSM = llvm::orc::ThreadSafeModule(std::move(TheModule), std::move(TheContext));
             ExitOnErr(TheJIT->addModule(std::move(TSM)));
@@ -374,9 +374,9 @@ void HandleExtern() {
     if (auto ProtoAST = ParseExtern()) {
         if (auto *FnIR = ProtoAST->codegen()) {
             if constexpr (debug::show_llvm_ir) {
-                fprintf(stderr, "Read extern:\n");
+                if constexpr (debug::show_prompt)
+                    fprintf(stderr, "Read extern:\n");
                 FnIR->print(llvm::errs());
-                fprintf(stderr, "\n");
             }
             FunctionProtos[ProtoAST->getName()] = std::move(ProtoAST);
         }
@@ -391,9 +391,9 @@ void HandleTopLevelExpression() {
     if (auto FnAST = ParseTopLevelExpr()) {
         if (auto *FnIR = FnAST->codegen()) {
             if constexpr (debug::show_llvm_ir) {
-                fprintf(stderr, "Read top-level expression:\n");
+                if constexpr (debug::show_prompt)
+                    fprintf(stderr, "Read top-level expression:\n");
                 FnIR->print(llvm::errs());
-                fprintf(stderr, "\n");
             }
 
             // Create a ResourceTracker to track JIT'd memory allocated to our

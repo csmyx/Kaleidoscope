@@ -48,4 +48,4 @@ set_target_properties(spdlog PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(${PROJECT_NAME}_lib PRIVATE spdlog::spdlog)
 
 # 调试模式：设置 DEBUG_DEFAULT=1
-target_compile_definitions(${PROJECT_NAME}_lib PRIVATE DEBUG_DEFAULT=0)  
+target_compile_definitions(${PROJECT_NAME}_lib PRIVATE DEBUG_DEFAULT=1)  
