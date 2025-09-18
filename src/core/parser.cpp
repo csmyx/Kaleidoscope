@@ -19,16 +19,6 @@
         getNextToken();                                                                            \
     } while (0)
 
-namespace debug {
-#ifndef DEBUG_DEFAULT
-#define DEBUG_DEFAULT 0
-#endif
-
-static constexpr bool debug_default = (DEBUG_DEFAULT != 0);
-static constexpr bool show_llvm_ir = debug_default; // whether to display llvm IR info
-static constexpr bool show_jit_res = debug_default; // whether to display JIT result
-} // namespace debug
-
 /// number_expr ::= number
 std::unique_ptr<ExprAST> ParseNumberExpr() {
     auto Result = std::make_unique<NumberExprAST>(GlobNumVal);
@@ -466,34 +456,38 @@ static void initParse() {
     BinopPrecedence['<'] = BinopPrecedence['>'] = COMPARE_OP_PREC;
     BinopPrecedence['+'] = BinopPrecedence['-'] = SUM_OP_PREC;
     BinopPrecedence['*'] = BinopPrecedence['/'] = MUL_OP_PREC;
-    // Prime the first token.
-    fmt::print(stderr, "ready> ");
-    getNextToken();
 }
 
 /// top ::= definition | external | expression | ';'
 void ParseMainLoop() {
     initParse();
+    fmt::print(stdout, "ready> ");
+    fflush(stdout);
+    getNextToken();
     bool isTerminal = isatty(STDIN_FILENO);
     while (true) {
         switch (GlobCurTok) {
         case tok_eof:
             return;
         case ';': // ignore top-level semicolons.
-            getNextToken();
             break;
         case tok_def:
             HandleDefinition();
-            break;
+            continue;
         case tok_extern:
             HandleExtern();
-            break;
+            continue;
         default:
             HandleTopLevelExpression();
-            break;
+            continue;
         }
         if (isTerminal) {
-            fmt::print(stderr, "ready> ");
+            fmt::print(stdout, "ready> ");
+            fflush(stdout);
+        }
+        getNextToken();
+        while (GlobCurTok == ';') { // remove all tail semicolons
+            getNextToken();
         }
     }
 }

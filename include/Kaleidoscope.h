@@ -13,6 +13,7 @@
 #ifndef LLVM_EXECUTIONENGINE_ORC_KALEIDOSCOPEJIT_H
 #define LLVM_EXECUTIONENGINE_ORC_KALEIDOSCOPEJIT_H
 
+#include "util.h"
 #include "llvm/ADT/StringRef.h"
 #include "llvm/ExecutionEngine/JITSymbol.h"
 #include "llvm/ExecutionEngine/Orc/CompileUtils.h"
@@ -59,8 +60,11 @@ class KaleidoscopeJIT {
     }
 
     ~KaleidoscopeJIT() {
-        if (auto Err = ES->endSession())
-            ES->reportError(std::move(Err));
+        if (auto Err = ES->endSession()) {
+            if constexpr (debug::debug_default) {
+                ES->reportError(std::move(Err));
+            }
+        }
     }
 
     static Expected<std::unique_ptr<KaleidoscopeJIT>> Create() {

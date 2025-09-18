@@ -1,4 +1,5 @@
 #include "global.h"
+#include "Kaleidoscope.h"
 #include "ast.h"
 
 std::string GlobIdentifierStr;
