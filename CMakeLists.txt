@@ -21,7 +21,7 @@ if (NOT CMAKE_BUILD_TYPE)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-  add_compile_options(-Wall -Werror)
+  add_compile_options(-Wall -Wextra -Werror)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   add_compile_options(/W4 /WX)
 endif()

@@ -4,6 +4,7 @@
 #include "global.h"
 #include "util.h"
 #include <llvm-14/llvm/ADT/StringExtras.h>
+#include <llvm-14/llvm/IR/Function.h>
 #include <llvm-14/llvm/Transforms/InstCombine/InstCombine.h>
 #include <llvm-14/llvm/Transforms/Scalar.h>
 #include <llvm-14/llvm/Transforms/Scalar/GVN.h>
@@ -17,6 +18,16 @@
         }                                                                                          \
         getNextToken();                                                                            \
     } while (0)
+
+namespace debug {
+#ifndef DEBUG_DEFAULT
+#define DEBUG_DEFAULT 0
+#endif
+
+static constexpr bool debug_default = (DEBUG_DEFAULT != 0);
+static constexpr bool show_llvm_ir = debug_default; // whether to display llvm IR info
+static constexpr bool show_jit_res = debug_default; // whether to display JIT result
+} // namespace debug
 
 /// number_expr ::= number
 std::unique_ptr<ExprAST> ParseNumberExpr() {
@@ -355,9 +366,11 @@ std::unique_ptr<PrototypeAST> ParseExtern() {
 void HandleDefinition() {
     if (auto FnAST = ParseDefinition()) {
         if (auto *FnIR = FnAST->codegen()) {
-            fprintf(stderr, "Read function definition:\n");
-            FnIR->print(llvm::errs());
-            fprintf(stderr, "\n");
+            if constexpr (debug::show_llvm_ir) {
+                fprintf(stderr, "Read function definition:\n");
+                FnIR->print(llvm::errs());
+                fprintf(stderr, "\n");
+            }
             auto TSM = llvm::orc::ThreadSafeModule(std::move(TheModule), std::move(TheContext));
             ExitOnErr(TheJIT->addModule(std::move(TSM)));
             InitializeModuleAndManager();
@@ -371,9 +384,11 @@ void HandleDefinition() {
 void HandleExtern() {
     if (auto ProtoAST = ParseExtern()) {
         if (auto *FnIR = ProtoAST->codegen()) {
-            fprintf(stderr, "Read extern:\n");
-            FnIR->print(llvm::errs());
-            fprintf(stderr, "\n");
+            if constexpr (debug::show_llvm_ir) {
+                fprintf(stderr, "Read extern:\n");
+                FnIR->print(llvm::errs());
+                fprintf(stderr, "\n");
+            }
             FunctionProtos[ProtoAST->getName()] = std::move(ProtoAST);
         }
     } else {
@@ -386,9 +401,11 @@ void HandleTopLevelExpression() {
     // Evaluate a top-level expression into an anonymous function.
     if (auto FnAST = ParseTopLevelExpr()) {
         if (auto *FnIR = FnAST->codegen()) {
-            fprintf(stderr, "Read top-level expression:\n");
-            FnIR->print(llvm::errs());
-            fprintf(stderr, "\n");
+            if constexpr (debug::show_llvm_ir) {
+                fprintf(stderr, "Read top-level expression:\n");
+                FnIR->print(llvm::errs());
+                fprintf(stderr, "\n");
+            }
 
             // Create a ResourceTracker to track JIT'd memory allocated to our
             // anonymous expression -- that way we can free it after executing.
@@ -405,8 +422,11 @@ void HandleTopLevelExpression() {
             // Get the symbol's address and cast it to the right type (takes no
             // arguments, return a double) so we can call it as a native function.
             double (*FP)() = (double (*)())(intptr_t)ExprSymbol.getAddress();
+            [[maybe_unused]] auto res = FP();
 
-            fprintf(stderr, "Evaluated to %f\n", FP());
+            if constexpr (debug::show_jit_res) {
+                fprintf(stderr, "Evaluated to %f\n", res);
+            }
 
             // Delete the anonymou expression module from the JIT.
             ExitOnErr(RT->remove());

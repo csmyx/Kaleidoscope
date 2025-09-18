@@ -10,7 +10,11 @@ VCPKG_FILE := ${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake
 BUILD_TYPE=Debug
 # BUILD_TYPE=RelWithDebInfo
 config:
-	cmake -B build -S . -DCMAKE_CXX_CLANG_TIDY=clang-tidy -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_TOOLCHAIN_FILE=${VCPKG_FILE}
+	cmake -B build -S . \
+	-DCMAKE_CXX_CLANG_TIDY=clang-tidy \
+	-DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+	-DCMAKE_TOOLCHAIN_FILE=${VCPKG_FILE}
+
 
 BUILD_TARGET ?= lib 
 build:

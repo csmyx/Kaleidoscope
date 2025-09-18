@@ -28,3 +28,24 @@ llvm_map_components_to_libnames(llvm_libs
   native
 )
 target_link_libraries(${PROJECT_NAME}_lib PUBLIC ${llvm_libs})
+
+# 引入 FetchContent 模块
+include(FetchContent)
+
+# 声明拉取 spdlog（可指定版本，如 GIT_TAG v1.12.0）
+FetchContent_Declare(
+    spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    GIT_TAG v1.15.3  # 可选：指定版本（如最新稳定版）
+)
+
+# 拉取并编译 spdlog
+FetchContent_MakeAvailable(spdlog)
+
+# We must build deps with -fpic if we want to build our lib as a shared lib.
+set_target_properties(spdlog PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+target_link_libraries(${PROJECT_NAME}_lib PRIVATE spdlog::spdlog)
+
+# 调试模式：设置 DEBUG_DEFAULT=1
+target_compile_definitions(${PROJECT_NAME}_lib PRIVATE DEBUG_DEFAULT=0)  
