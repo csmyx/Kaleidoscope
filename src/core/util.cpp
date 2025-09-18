@@ -25,12 +25,12 @@ llvm::Value *LogErrorV(const char *Str) {
 
 /// putchard - putchar that takes a double and returns 0.
 extern "C" DLLEXPORT double putchard(double X) {
-    fputc((char)X, stderr);
+    fputc((char)X, stdout);
     return 0;
 }
 
 /// printd - printf that takes a double prints it as "%f\n", returning 0.
 extern "C" DLLEXPORT double printd(double X) {
-    fprintf(stderr, "%f\n", X);
+    fprintf(stdout, "%f\n", X);
     return 0;
 }

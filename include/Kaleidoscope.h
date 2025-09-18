@@ -61,7 +61,7 @@ class KaleidoscopeJIT {
 
     ~KaleidoscopeJIT() {
         if (auto Err = ES->endSession()) {
-            if constexpr (debug::debug_default) {
+            if constexpr (debug::show_jit_session) {
                 ES->reportError(std::move(Err));
             }
         }

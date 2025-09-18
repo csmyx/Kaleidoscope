@@ -17,4 +17,5 @@ namespace debug {
 constexpr bool debug_default = (DEBUG_DEFAULT != 0);
 constexpr bool show_llvm_ir = debug_default; // whether to display llvm IR info
 constexpr bool show_jit_res = debug_default; // whether to display JIT result
+constexpr bool show_jit_session = true;      // whether to display JIT result
 } // namespace debug

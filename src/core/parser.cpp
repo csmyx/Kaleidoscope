@@ -14,7 +14,7 @@
 #define EXPECT_AND_EAT_TOKEN(tok)                                                                  \
     do {                                                                                           \
         if (GlobCurTok != tok) {                                                                   \
-            return LogError("expected: " #tok);                                                    \
+            return LogError("expected token: " #tok);                                              \
         }                                                                                          \
         getNextToken();                                                                            \
     } while (0)
@@ -36,7 +36,7 @@ std::unique_ptr<ExprAST> ParseParenExpr() {
         return nullptr;
     }
     if (GlobCurTok != ')') {
-        return LogError("expected: ')'");
+        return LogError("expected: ')' in parentheses_expr");
     }
     getNextToken();
     return v;
@@ -85,7 +85,7 @@ std::unique_ptr<ExprAST> ParseIfExpr() {
 
     // Parse condition.
     if (GlobCurTok != '(') {
-        return LogError("expected: '('");
+        return LogError("expected: '(' in if_expr");
     }
     getNextToken(); // eat '('
     std::unique_ptr<ExprAST> cond = ParseExpression();
@@ -93,7 +93,7 @@ std::unique_ptr<ExprAST> ParseIfExpr() {
         return nullptr;
     }
     if (GlobCurTok != ')') {
-        return LogError("expected: ')'");
+        return LogError("expected: ')' in if_expr");
     }
     getNextToken(); // eat ')'
 
@@ -105,7 +105,7 @@ std::unique_ptr<ExprAST> ParseIfExpr() {
 
     // Parse else branch.
     if (GlobCurTok != tok_else) {
-        return LogError("expected: 'else'");
+        return LogError("expected: 'else' in if_expr");
     }
     getNextToken(); // eat 'else'
     std::unique_ptr<ExprAST> else_br = ParseExpression();
@@ -127,7 +127,7 @@ std::unique_ptr<ExprAST> ParseForExpr() {
 
     // Parse init_expr.
     if (GlobCurTok != tok_identifier) {
-        return LogError("expected: identifier");
+        return LogError("expected: identifier in for_exr");
     }
     std::string var_name = GlobIdentifierStr;
     getNextToken();
@@ -156,7 +156,6 @@ std::unique_ptr<ExprAST> ParseForExpr() {
         if (!step) {
             return nullptr;
         }
-        getNextToken();
     }
 
     EXPECT_AND_EAT_TOKEN(')');
