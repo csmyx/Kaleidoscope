@@ -1,3 +1,4 @@
+#include "fmt/core.h"
 #include "global.h"
 #include <cctype>
 #include <cstdio>
@@ -45,6 +46,46 @@ int gettok() {
         return tok_number;
     }
 
+    if (LastChar == '\'') {
+        LastChar = getchar();
+
+        if (LastChar == EOF) {
+            GlobTokErrorInfo = "got EOF when single quotation is not paired";
+            return tok_error;
+        } else if (LastChar == '\\') {
+            LastChar = getchar();
+            switch (LastChar) {
+            case 'n':
+                GlobCharLiteral = '\n';
+                break;
+            case 'r':
+                GlobCharLiteral = '\r';
+                break;
+            case 't':
+                GlobCharLiteral = '\t';
+                break;
+            case '\\':
+                GlobCharLiteral = '\\';
+                break;
+            case '\'':
+                GlobCharLiteral = '\'';
+                break;
+            default:
+                GlobTokErrorInfo = "invalid escape character";
+                return tok_error;
+            }
+        } else {
+            GlobCharLiteral = LastChar;
+        }
+        LastChar = getchar();
+        if (LastChar != '\'') {
+            GlobTokErrorInfo = "single quotation is not paired";
+            return tok_error;
+        }
+        LastChar = getchar(); // eat '\''
+        return tok_char_literal;
+    }
+
     if (LastChar == '#') {
         do {
             LastChar = getchar();
@@ -65,4 +106,19 @@ int gettok() {
     return ThisChar;
 }
 
-int getNextToken() { return GlobCurTok = gettok(); };
+[[maybe_unused]] int getNextToken() {
+    GlobCurTok = gettok();
+    if (GlobCurTok == tok_error) {
+        fmt::print(stderr, "Error in GetNextToken: {}\n", GlobTokErrorInfo);
+        exit(1);
+    }
+    return GlobCurTok;
+};
+
+int GetCurTokPrecedence() {
+    auto iter = BinopPrecedence.find(GlobCurTok);
+    if (iter != BinopPrecedence.end()) {
+        return iter->second;
+    }
+    return INVALID_TOK_PREC;
+}

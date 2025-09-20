@@ -66,10 +66,15 @@ enum token {
     // operator
     tok_unary = -9,
     tok_binary = -10,
+    tok_char_literal = -11, // char literal
+    // error
+    tok_error = -12,
 };
 extern std::string GlobIdentifierStr;
 extern double GlobNumVal;
+extern char GlobCharLiteral;
 extern int GlobCurTok;
+extern std::string GlobTokErrorInfo;
 int getNextToken();
 
 // parser
@@ -90,6 +95,10 @@ extern std::unique_ptr<llvm::legacy::FunctionPassManager> TheFPM;
 class PrototypeAST;
 extern std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
 extern std::map<char, int> BinopPrecedence;
+extern std::set<char> UnaryOp;
 extern llvm::ExitOnError ExitOnErr;
 extern std::unique_ptr<llvm::orc::KaleidoscopeJIT> TheJIT;
 void InitializeModuleAndManager();
+
+// lexer
+int GetCurTokPrecedence();

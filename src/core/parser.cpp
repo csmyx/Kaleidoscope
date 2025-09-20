@@ -27,6 +27,14 @@ std::unique_ptr<ExprAST> ParseNumberExpr() {
     return std::move(Result);
 }
 
+/// char_literal_expr ::= '\'' character '\''
+std::unique_ptr<ExprAST> ParseCharLiteralExpr() {
+    double v = GlobCharLiteral; // convert char to double
+    auto Result = std::make_unique<NumberExprAST>(v);
+    getNextToken(); // consume the number
+    return std::move(Result);
+}
+
 /// parentheses_expr ::= '(' expression ')'
 std::unique_ptr<ExprAST> ParseExpression();
 std::unique_ptr<ExprAST> ParseParenExpr() {
@@ -174,6 +182,7 @@ std::unique_ptr<ExprAST> ParseForExpr() {
 /// primary_expr
 ///   ::= identifier_expr
 ///   ::= number_expr
+///   ::= char_literal_expr
 ///   ::= parentheses_expr
 ///   ::= if_expr
 ///   ::= for_expr
@@ -185,6 +194,8 @@ std::unique_ptr<ExprAST> ParsePrimaryExpr() {
         return ParseIdentifierExpr();
     case tok_number:
         return ParseNumberExpr();
+    case tok_char_literal:
+        return ParseCharLiteralExpr();
     case '(':
         return ParseParenExpr();
     case tok_if:
@@ -194,31 +205,17 @@ std::unique_ptr<ExprAST> ParsePrimaryExpr() {
     }
 }
 
-int GetCurTokPrecedence() {
-    auto iter = BinopPrecedence.find(GlobCurTok);
-    if (iter != BinopPrecedence.end()) {
-        return iter->second;
-    }
-    return INVALID_TOK_PREC;
-}
-
-static inline bool isPrimaryTok() { return !llvm::isASCII(GlobCurTok) || GlobCurTok == '('; }
-
 /// unary_expr
 ///   ::= primary_expr
 ///   ::= unary_op unary_expr
 std::unique_ptr<ExprAST> ParseUnaryExpr() {
-    // check if current tok is unary operator
-    if (isPrimaryTok() || GlobCurTok == ',') {
-        return ParsePrimaryExpr();
-    } else {
+    // check if current tok is unary operator, otherwise do primay_expr
+    if (UnaryOp.contains(GlobCurTok)) {
         int unary_op = GlobCurTok;
         getNextToken(); // eat unary_op
-        if (auto operand = ParseUnaryExpr()) {
-            return std::make_unique<UnaryExprAST>(unary_op, std::move(operand));
-        }
+        return std::make_unique<UnaryExprAST>(unary_op, ParseUnaryExpr());
     }
-    return nullptr;
+    return ParsePrimaryExpr();
 }
 
 /// parse BinOpExpr that start from [LHS], and end at a token with precedence strictly less than

@@ -5,6 +5,8 @@
 
 std::string GlobIdentifierStr;
 double GlobNumVal;
+char GlobCharLiteral;
+std::string GlobTokErrorInfo;
 int GlobCurTok;
 
 // llvm relative global vriables
@@ -23,5 +25,6 @@ std::unique_ptr<llvm::legacy::FunctionPassManager> TheFPM;
 // std::unique_ptr<llvm::StandardInstrumentations> TheSI;
 std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
 std::map<char, int> BinopPrecedence;
+std::set<char> UnaryOp;
 llvm::ExitOnError ExitOnErr;
 std::unique_ptr<llvm::orc::KaleidoscopeJIT> TheJIT;

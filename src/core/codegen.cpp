@@ -141,8 +141,10 @@ llvm::Function *FunctionAST::codegen() {
         return nullptr;
     }
 
-    // install binary operator precedence.
-    if (proto.isBinaryOp()) {
+    // install unary and binary operator precedence.
+    if (proto.isUnaryOp()) {
+        UnaryOp.insert(proto.getOpName());
+    } else if (proto.isBinaryOp()) {
         BinopPrecedence[proto.getOpName()] = proto.getBinaryPrecedence();
     }
 
@@ -170,7 +172,9 @@ llvm::Function *FunctionAST::codegen() {
 
     // Error handling when function codegen failed.
     func->eraseFromParent();
-    if (proto.isBinaryOp()) {
+    if (proto.isUnaryOp()) {
+        UnaryOp.erase(proto.getOpName());
+    } else if (proto.isBinaryOp()) {
         BinopPrecedence.erase(proto.getOpName());
     }
     return nullptr;
