@@ -227,12 +227,6 @@ llvm::Value *IfExprAST::codegen() {
 llvm::Value *ForExprAST::codegen() {
     llvm::Function *func = Builder->GetInsertBlock()->getParent();
 
-    // 1. Basic BLock of Entry, include iter_variable init codegen and cond condition codegen.
-    llvm::BasicBlock *entry_bb = llvm::BasicBlock::Create(*TheContext, "forentry", func);
-    Builder->CreateBr(entry_bb); // create br from pre_bb to entry_bb
-
-    Builder->SetInsertPoint(entry_bb);
-
     // Emit the start code first, without 'variable' in scope.
     llvm::Value *init_v = init_->codegen();
     if (!init_v) {
@@ -246,7 +240,12 @@ llvm::Value *ForExprAST::codegen() {
 
     // Convert phi node operation as above to alloca store as below:
     llvm::AllocaInst *iter_alloca = CreateEntryBlockAlloca(func, var_name_);
-    Builder->CreateStore(init_v, iter_alloca);
+    Builder->CreateStore(init_v, iter_alloca); // this should in pre_bb other than entry_bb
+
+    // 1. Basic BLock of Entry, include iter_variable init codegen and cond condition codegen.
+    llvm::BasicBlock *entry_bb = llvm::BasicBlock::Create(*TheContext, "forentry", func);
+    Builder->CreateBr(entry_bb); // create br from pre_bb to entry_bb
+    Builder->SetInsertPoint(entry_bb);
 
     // Within the loop, the variable is defined equal to the Phi node. If it shadows an existing
     // variable, we have to restor it, so save it now.
