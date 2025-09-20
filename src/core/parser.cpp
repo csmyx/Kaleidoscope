@@ -8,6 +8,7 @@
 #include <llvm-14/llvm/Transforms/InstCombine/InstCombine.h>
 #include <llvm-14/llvm/Transforms/Scalar.h>
 #include <llvm-14/llvm/Transforms/Scalar/GVN.h>
+#include <llvm-14/llvm/Transforms/Utils.h>
 #include <memory>
 #include <optional>
 
@@ -439,6 +440,8 @@ void InitializeModuleAndManager() {
     // Create new pass and analysis managers.
     TheFPM = std::make_unique<llvm::legacy::FunctionPassManager>(TheModule.get());
 
+    // Promote allocas to registers.
+    TheFPM->add(llvm::createPromoteMemoryToRegisterPass());
     // Do simple "peephole" optimizations and bit-twiddling optimizations.
     TheFPM->add(llvm::createInstructionCombiningPass());
     // Reassociate expressions.

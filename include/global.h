@@ -8,6 +8,7 @@
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/Instructions.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/IR/Module.h"
@@ -23,6 +24,7 @@
 #include "llvm/Transforms/Scalar/GVN.h"
 #include "llvm/Transforms/Scalar/Reassociate.h"
 #include "llvm/Transforms/Scalar/SimplifyCFG.h"
+#include "llvm/Transforms/Utils.h"
 #include <algorithm>
 #include <cassert>
 #include <cctype>
@@ -30,6 +32,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <llvm-14/llvm/ExecutionEngine/Orc/ThreadSafeModule.h>
+#include <llvm-14/llvm/IR/Instructions.h>
 #include <map>
 #include <memory>
 #include <optional>
@@ -76,7 +79,7 @@ void ParseMainLoop();
 extern std::unique_ptr<llvm::LLVMContext> TheContext;
 extern std::unique_ptr<llvm::IRBuilder<>> Builder;
 extern std::unique_ptr<llvm::Module> TheModule;
-extern std::map<std::string, llvm::Value *> NamedValues;
+extern std::map<std::string, llvm::AllocaInst *> NamedValues;
 extern std::unique_ptr<llvm::legacy::FunctionPassManager> TheFPM;
 // extern std::unique_ptr<llvm::LoopAnalysisManager> TheLAM;
 // extern std::unique_ptr<llvm::FunctionAnalysisManager> TheFAM;

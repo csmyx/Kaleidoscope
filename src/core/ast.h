@@ -18,10 +18,10 @@ class NumberExprAST : public ExprAST {
 };
 
 class VariableAST : public ExprAST {
-    std::string Name;
+    std::string name_;
 
   public:
-    VariableAST(const std::string &name) : Name(name) {}
+    VariableAST(const std::string &name) : name_(name) {}
     llvm::Value *codegen() override;
 };
 

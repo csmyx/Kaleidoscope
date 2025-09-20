@@ -1,6 +1,7 @@
 #include "global.h"
 #include "Kaleidoscope.h"
 #include "ast.h"
+#include <llvm-14/llvm/IR/Instructions.h>
 
 std::string GlobIdentifierStr;
 double GlobNumVal;
@@ -10,7 +11,7 @@ int GlobCurTok;
 std::unique_ptr<llvm::LLVMContext> TheContext;
 std::unique_ptr<llvm::IRBuilder<>> Builder;
 std::unique_ptr<llvm::Module> TheModule;
-std::map<std::string, llvm::Value *> NamedValues;
+std::map<std::string, llvm::AllocaInst *> NamedValues;
 
 // std::unique_ptr<KaleidoscopeJIT> TheJIT;
 std::unique_ptr<llvm::legacy::FunctionPassManager> TheFPM;

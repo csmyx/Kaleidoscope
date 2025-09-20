@@ -14,16 +14,23 @@
 #include <llvm-14/llvm/IR/Value.h>
 #include <llvm-14/llvm/IR/Verifier.h>
 
+/// CreateEntryBlockAlloca - Create an alloca instruction in the entry block of
+/// the function.  This is used for mutable variables etc.
+static llvm::AllocaInst *CreateEntryBlockAlloca(llvm::Function *func, llvm::StringRef var_name) {
+    llvm::IRBuilder<> tmp_b(&func->getEntryBlock(), func->getEntryBlock().begin());
+    return tmp_b.CreateAlloca(llvm::Type::getDoubleTy(*TheContext), nullptr, var_name);
+}
+
 llvm::Value *NumberExprAST::codegen() {
     return llvm::ConstantFP::get(*TheContext, llvm::APFloat(Val));
 }
 
 llvm::Value *VariableAST::codegen() {
-    llvm::Value *v = NamedValues[Name];
-    if (!v) {
+    llvm::AllocaInst *alloca = NamedValues[name_];
+    if (!alloca) {
         return LogErrorV("Unknown variable name");
     }
-    return v;
+    return Builder->CreateLoad(llvm::Type::getDoubleTy(*TheContext), alloca, name_.c_str());
 }
 
 llvm::Function *getFunction(std::string name) {
@@ -110,9 +117,9 @@ llvm::Value *CallExprAST::codegen() {
 }
 
 llvm::Function *PrototypeAST::codegen() {
-    std::vector<llvm::Type *> Doubles(args_.size(), llvm::Type::getDoubleTy(*TheContext));
+    std::vector<llvm::Type *> params_type(args_.size(), llvm::Type::getDoubleTy(*TheContext));
     llvm::FunctionType *FT =
-        llvm::FunctionType::get(llvm::Type::getDoubleTy(*TheContext), Doubles, false);
+        llvm::FunctionType::get(llvm::Type::getDoubleTy(*TheContext), params_type, false);
     llvm::Function *F =
         llvm::Function::Create(FT, llvm::Function::ExternalLinkage, name_, TheModule.get());
 
@@ -128,9 +135,9 @@ llvm::Function *FunctionAST::codegen() {
     // use below.
     PrototypeAST &proto = *proto_;
     FunctionProtos[proto_->getName()] = std::move(proto_);
-    llvm::Function *fn = getFunction(proto.getName());
+    llvm::Function *func = getFunction(proto.getName());
 
-    if (!fn) {
+    if (!func) {
         return nullptr;
     }
 
@@ -139,25 +146,30 @@ llvm::Function *FunctionAST::codegen() {
         BinopPrecedence[proto.getOpName()] = proto.getBinaryPrecedence();
     }
 
-    llvm::BasicBlock *BB = llvm::BasicBlock::Create(*TheContext, "entry", fn);
+    llvm::BasicBlock *BB = llvm::BasicBlock::Create(*TheContext, "entry", func);
     Builder->SetInsertPoint(BB);
 
     NamedValues.clear();
-    for (auto &Arg : fn->args()) {
-        NamedValues[std::string(Arg.getName())] = &Arg;
+    for (auto &arg : func->args()) {
+        // Create an alloca for this variable.
+        llvm::AllocaInst *alloca = CreateEntryBlockAlloca(func, arg.getName());
+        // Stoer the initial value into the alloca.
+        Builder->CreateStore(&arg, alloca);
+        // Add arguments to variable symbol table.
+        NamedValues[std::string(arg.getName())] = alloca;
     }
 
     if (llvm::Value *RetVal = body_->codegen()) {
         // Finish off the function
         Builder->CreateRet(RetVal);
 
-        llvm::verifyFunction(*fn);
+        llvm::verifyFunction(*func);
 
-        return fn;
+        return func;
     }
 
     // Error handling when function codegen failed.
-    fn->eraseFromParent();
+    func->eraseFromParent();
     if (proto.isBinaryOp()) {
         BinopPrecedence.erase(proto.getOpName());
     }
@@ -213,31 +225,33 @@ llvm::Value *IfExprAST::codegen() {
 }
 
 llvm::Value *ForExprAST::codegen() {
+    llvm::Function *func = Builder->GetInsertBlock()->getParent();
+
+    // 1. Basic BLock of Entry, include iter_variable init codegen and cond condition codegen.
+    llvm::BasicBlock *entry_bb = llvm::BasicBlock::Create(*TheContext, "forentry", func);
+    Builder->CreateBr(entry_bb); // create br from pre_bb to entry_bb
+
+    Builder->SetInsertPoint(entry_bb);
+
     // Emit the start code first, without 'variable' in scope.
     llvm::Value *init_v = init_->codegen();
     if (!init_v) {
         return nullptr;
     }
 
-    llvm::Function *func = Builder->GetInsertBlock()->getParent();
-    llvm::BasicBlock *pre_bb = Builder->GetInsertBlock();
+    // // Start the Phi node with an entry for init.
+    // llvm::PHINode *iter_var =
+    //     Builder->CreatePHI(llvm::Type::getDoubleTy(*TheContext), 2, var_name_);
+    // iter_var->addIncoming(init_v, pre_bb);
 
-    // 1. Basic BLock of Entry, include iter_variable init codegen and cond condition codegen.
-    llvm::BasicBlock *entry_bb = llvm::BasicBlock::Create(*TheContext, "forentry", func);
-    Builder->SetInsertPoint(pre_bb);
-    Builder->CreateBr(entry_bb); // jump to entry bb from previous bb
-
-    auto *pre_bb_tail = Builder->GetInsertBlock();
-    Builder->SetInsertPoint(entry_bb);
-    // Start the Phi node with an entry for init.
-    llvm::PHINode *iter_var =
-        Builder->CreatePHI(llvm::Type::getDoubleTy(*TheContext), 2, var_name_);
-    iter_var->addIncoming(init_v, pre_bb_tail);
+    // Convert phi node operation as above to alloca store as below:
+    llvm::AllocaInst *iter_alloca = CreateEntryBlockAlloca(func, var_name_);
+    Builder->CreateStore(init_v, iter_alloca);
 
     // Within the loop, the variable is defined equal to the Phi node. If it shadows an existing
     // variable, we have to restor it, so save it now.
-    llvm::Value *old_val = NamedValues[var_name_];
-    NamedValues[var_name_] = iter_var;
+    llvm::AllocaInst *old_alloca = NamedValues[var_name_];
+    NamedValues[var_name_] = iter_alloca;
 
     // Emit cond codegen, convert cond to a bool by comparing not-eqaul to 0.0.
     llvm::Value *cond_v = cond_->codegen();
@@ -263,29 +277,38 @@ llvm::Value *ForExprAST::codegen() {
     }
 
     // Emit the step value.
-    llvm::Value *step_value = nullptr;
+    llvm::Value *step_v = nullptr;
     if (step_) {
-        step_value = step_->codegen();
-        if (!step_value) {
+        step_v = step_->codegen();
+        if (!step_v) {
             return nullptr;
         }
     } else {
         // If not specified, default is 1.0.
-        step_value = llvm::ConstantFP::get(*TheContext, llvm::APFloat(1.0));
+        step_v = llvm::ConstantFP::get(*TheContext, llvm::APFloat(1.0));
     }
 
-    // Compute the next value.
-    llvm::Value *next_v = Builder->CreateFAdd(iter_var, step_value, "nextvar");
-    auto *body_bb_tail = Builder->GetInsertBlock();
-    iter_var->addIncoming(next_v, body_bb_tail);
-    Builder->CreateBr(entry_bb); // jump back to entry BB
+    // Reload, increment, and restore the alloca. This handles the case where the body of the loop
+    // mutates the variable.
+    llvm::Value *cur_v =
+        Builder->CreateLoad(iter_alloca->getAllocatedType(), iter_alloca, var_name_.c_str());
+    //  Compute the next value.
+    llvm::Value *next_v = Builder->CreateFAdd(cur_v, step_v, "nextvar");
+
+    // auto *body_bb_tail = Builder->GetInsertBlock();
+    // iter_alloca->addIncoming(next_v, body_bb_tail);
+
+    // Convert phi node operation above to alloca store as below:
+    Builder->CreateStore(next_v, iter_alloca);
+
+    Builder->CreateBr(entry_bb); // jump back from loop BB to entry BB
 
     // 3. exit.
     Builder->SetInsertPoint(post_bb);
 
     // Restore the unshadowed variable.
-    if (old_val) {
-        NamedValues[var_name_] = old_val;
+    if (old_alloca) {
+        NamedValues[var_name_] = old_alloca;
     } else {
         NamedValues.erase(var_name_);
     }
