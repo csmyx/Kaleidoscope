@@ -1,4 +1,4 @@
-#include "Kaleidoscope.h"
+#include "KaleidoscopeJIT.h"
 #include "global.h"
 
 int main() {

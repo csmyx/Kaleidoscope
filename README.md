@@ -41,3 +41,8 @@ Linux里GLOBAL符号外部可见性默认DEFAULT是：外部可见，如果需�
 `__attribute__((visibility("hidden"))) `。
 
 Windows里GLOBAL符号外部可见性默认是：外部不可见。
+
+### chapter 7
+TODO: 
+- 异常处理只是打印warning info或者直接exit，待规范异常处理
+- unary binary 重载需要添加特殊符号判定，比如 `(`, `)`, `'` 等符号不能被重载

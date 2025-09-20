@@ -1,5 +1,5 @@
 #include "global.h"
-#include "Kaleidoscope.h"
+#include "KaleidoscopeJIT.h"
 #include "ast.h"
 #include <llvm-14/llvm/IR/Instructions.h>
 

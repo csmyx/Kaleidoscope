@@ -1,4 +1,4 @@
-#include "Kaleidoscope.h"
+#include "KaleidoscopeJIT.h"
 #include "ast.h"
 #include "fmt/core.h"
 #include "global.h"

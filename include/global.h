@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Kaleidoscope.h"
+#include "KaleidoscopeJIT.h"
 #include "llvm/ADT/APFloat.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/IR/BasicBlock.h"
@@ -54,21 +54,20 @@
 // tokenizer
 enum token {
     tok_eof = -1,
-    tok_def = -2,
-    tok_extern = -3,
-    tok_identifier = -4,
-    tok_number = -5,
+    tok_error = -2,
+    tok_def = -3,
+    tok_extern = -4,
+    tok_identifier = -5,
+    tok_number = -6,
     // control
-    tok_if = -6,
-    tok_else = -7,
+    tok_if = -7,
+    tok_else = -8,
     // loop
-    tok_for = -8,
+    tok_for = -9,
     // operator
-    tok_unary = -9,
-    tok_binary = -10,
-    tok_char_literal = -11, // char literal
-    // error
-    tok_error = -12,
+    tok_unary = -10,
+    tok_binary = -11,
+    tok_char_literal = -12, // char literal
 };
 extern std::string GlobIdentifierStr;
 extern double GlobNumVal;
