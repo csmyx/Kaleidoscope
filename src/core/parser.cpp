@@ -3,6 +3,7 @@
 #include "fmt/core.h"
 #include "global.h"
 #include "util.h"
+#include <cstdio>
 #include <llvm-14/llvm/ADT/StringExtras.h>
 #include <llvm-14/llvm/IR/Function.h>
 #include <llvm-14/llvm/Transforms/InstCombine/InstCombine.h>
@@ -62,7 +63,7 @@ std::unique_ptr<ExprAST> ParseIdentifierExpr() {
     std::string ident = GlobIdentifierStr;
     getNextToken();
     if (GlobCurTok != '(') {
-        return std::make_unique<VariableAST>(ident);
+        return std::make_unique<VariableExprAST>(ident);
     }
     getNextToken(); // eat '('
     std::vector<std::unique_ptr<ExprAST>> args;
@@ -138,7 +139,7 @@ std::unique_ptr<ExprAST> ParseForExpr() {
     if (GlobCurTok != tok_identifier) {
         return LogError("expected: identifier in for_exr");
     }
-    std::string var_name = GlobIdentifierStr;
+    const std::string var_name = GlobIdentifierStr;
     getNextToken();
 
     EXPECT_AND_EAT_TOKEN('=');
@@ -179,6 +180,24 @@ std::unique_ptr<ExprAST> ParseForExpr() {
                                         std::move(body));
 }
 
+/// declar_expr ::= var identifier = expression
+std::unique_ptr<ExprAST> ParseDeclarationExpr() {
+    assert(GlobCurTok == tok_var);
+    getNextToken(); // eat 'var'
+
+    if (GlobCurTok != tok_identifier) {
+        return LogError("expected: identifier in declaration");
+    }
+
+    const std::string var_name = GlobIdentifierStr;
+    getNextToken();
+
+    EXPECT_AND_EAT_TOKEN('=');
+
+    auto init_expr = ParseExpression();
+    return std::make_unique<DeclarationExprAST>(var_name, std::move(init_expr));
+}
+
 /// primary_expr
 ///   ::= identifier_expr
 ///   ::= number_expr
@@ -186,6 +205,7 @@ std::unique_ptr<ExprAST> ParseForExpr() {
 ///   ::= parentheses_expr
 ///   ::= if_expr
 ///   ::= for_expr
+///   ::= declar_expr
 std::unique_ptr<ExprAST> ParsePrimaryExpr() {
     switch (GlobCurTok) {
     default:
@@ -202,6 +222,8 @@ std::unique_ptr<ExprAST> ParsePrimaryExpr() {
         return ParseIfExpr();
     case tok_for:
         return ParseForExpr();
+    case tok_var:
+        return ParseDeclarationExpr();
     }
 }
 
@@ -213,7 +235,7 @@ std::unique_ptr<ExprAST> ParseUnaryExpr() {
     if (UnaryOp.contains(GlobCurTok)) {
         int unary_op = GlobCurTok;
         getNextToken(); // eat unary_op
-        return std::make_unique<UnaryExprAST>(unary_op, ParseUnaryExpr());
+        return std::make_unique<UnaryOpExprAST>(unary_op, ParseUnaryExpr());
     }
     return ParsePrimaryExpr();
 }
@@ -235,7 +257,7 @@ std::unique_ptr<ExprAST> ParseBinOpRHS(int TokPrec, std::unique_ptr<ExprAST> LHS
             if (!RHS)
                 return nullptr;
         }
-        LHS = std::make_unique<BinaryExprAST>(BinOp, std::move(LHS), std::move(RHS));
+        LHS = std::make_unique<BinaryOpExprAST>(BinOp, std::move(LHS), std::move(RHS));
     }
 }
 
@@ -247,15 +269,15 @@ std::unique_ptr<ExprAST> ParseExpression() {
     if (!v) {
         return nullptr;
     }
-    return ParseBinOpRHS(INVALID_TOK_PREC + 1, std::move(v));
+    return ParseBinOpRHS(INVALID_BINARY_OP_PREC + 1, std::move(v));
 }
 
 /// toplevelexpr ::= expression
-std::unique_ptr<FunctionAST> ParseTopLevelExpr() {
+std::unique_ptr<FunctionExprAST> ParseTopLevelExpr() {
     if (auto E = ParseExpression()) {
         // Make an anonymous proto.
-        auto Proto = std::make_unique<PrototypeAST>("__anon_expr", std::vector<std::string>());
-        return std::make_unique<FunctionAST>(std::move(Proto), std::move(E));
+        auto Proto = std::make_unique<PrototypeExprAST>("__anon_expr", std::vector<std::string>());
+        return std::make_unique<FunctionExprAST>(std::move(Proto), std::move(E));
     }
     return nullptr;
 }
@@ -264,7 +286,7 @@ std::unique_ptr<FunctionAST> ParseTopLevelExpr() {
 ///   ::= identifier '(' identifier* ')'
 ///   ::= unary LETTER '(' identifier ')'
 ///   ::= binary LETTER number? '(' identifier, identifier ')'
-std::unique_ptr<PrototypeAST> ParsePrototype() {
+std::unique_ptr<PrototypeExprAST> ParsePrototype() {
 
     std::string fn_name;
     unsigned kind = ID_PROTOTYPE_KIND;
@@ -329,23 +351,23 @@ std::unique_ptr<PrototypeAST> ParsePrototype() {
     if (kind && args.size() != kind) {
         return LogErrorP("Invalid number of operands for operator");
     }
-    return std::make_unique<PrototypeAST>(fn_name, std::move(args), kind, binary_prec);
+    return std::make_unique<PrototypeExprAST>(fn_name, std::move(args), kind, binary_prec);
 }
 
 /// definition ::= 'def' prototype expression
-std::unique_ptr<FunctionAST> ParseDefinition() {
+std::unique_ptr<FunctionExprAST> ParseDefinition() {
     getNextToken(); // eat def
     auto Proto = ParsePrototype();
     if (!Proto)
         return nullptr;
 
     if (auto E = ParseExpression())
-        return std::make_unique<FunctionAST>(std::move(Proto), std::move(E));
+        return std::make_unique<FunctionExprAST>(std::move(Proto), std::move(E));
     return nullptr;
 }
 
 /// external ::= 'extern' prototype
-std::unique_ptr<PrototypeAST> ParseExtern() {
+std::unique_ptr<PrototypeExprAST> ParseExtern() {
     getNextToken(); // eat extern.
     return ParsePrototype();
 }
@@ -354,7 +376,7 @@ void HandleDefinition() {
     if (auto FnAST = ParseDefinition()) {
         if (auto *FnIR = FnAST->codegen()) {
             if constexpr (debug::show_llvm_ir) {
-                if constexpr (debug::show_prompt)
+                if constexpr (debug::show_llvm_prompt)
                     fprintf(stderr, "Read function definition:\n");
                 FnIR->print(llvm::errs());
             }
@@ -372,7 +394,7 @@ void HandleExtern() {
     if (auto ProtoAST = ParseExtern()) {
         if (auto *FnIR = ProtoAST->codegen()) {
             if constexpr (debug::show_llvm_ir) {
-                if constexpr (debug::show_prompt)
+                if constexpr (debug::show_llvm_prompt)
                     fprintf(stderr, "Read extern:\n");
                 FnIR->print(llvm::errs());
             }
@@ -389,7 +411,7 @@ void HandleTopLevelExpression() {
     if (auto FnAST = ParseTopLevelExpr()) {
         if (auto *FnIR = FnAST->codegen()) {
             if constexpr (debug::show_llvm_ir) {
-                if constexpr (debug::show_prompt)
+                if constexpr (debug::show_llvm_prompt)
                     fprintf(stderr, "Read top-level expression:\n");
                 FnIR->print(llvm::errs());
             }
@@ -455,19 +477,22 @@ static void initParse() {
     BinopPrecedence['<'] = BinopPrecedence['>'] = COMPARE_OP_PREC;
     BinopPrecedence['+'] = BinopPrecedence['-'] = SUM_OP_PREC;
     BinopPrecedence['*'] = BinopPrecedence['/'] = MUL_OP_PREC;
+    BinopPrecedence['='] = ASSIGNMENT_OP_PREC;
 }
 
 /// top ::= definition | external | expression | ';'
 void ParseMainLoop() {
     initParse();
-    fmt::print(stdout, "ready> ");
+    if constexpr (debug::show_input_prompt) {
+        fmt::print(stdout, "ready> ");
+    }
     fflush(stdout);
     getNextToken();
     bool isTerminal = isatty(STDIN_FILENO);
     while (true) {
         switch (GlobCurTok) {
         case tok_eof:
-            return;
+            goto finish;
         case ';': // ignore top-level semicolons.
             break;
         case tok_def:
@@ -480,13 +505,17 @@ void ParseMainLoop() {
             HandleTopLevelExpression();
             continue;
         }
-        if (isTerminal) {
-            fmt::print(stdout, "ready> ");
-            fflush(stdout);
+        if constexpr (debug::show_input_prompt) {
+            if (isTerminal) {
+                fmt::print(stdout, "ready> ");
+                fflush(stdout);
+            }
         }
         getNextToken();
         while (GlobCurTok == ';') { // remove all tail semicolons
             getNextToken();
         }
     }
+finish:
+    fflush(stdout);
 }

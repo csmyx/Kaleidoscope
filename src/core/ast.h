@@ -1,6 +1,7 @@
 #pragma once
 
 #include "global.h"
+#include <memory>
 #include <optional>
 
 class ExprAST {
@@ -17,32 +18,44 @@ class NumberExprAST : public ExprAST {
     llvm::Value *codegen() override;
 };
 
-class VariableAST : public ExprAST {
+class VariableExprAST : public ExprAST {
     std::string name_;
 
   public:
-    VariableAST(const std::string &name) : name_(name) {}
+    VariableExprAST(const std::string &name) : name_(name) {}
+    const std::string &getName() const { return name_; }
     llvm::Value *codegen() override;
 };
 
-class UnaryExprAST : public ExprAST {
+class DeclarationExprAST : public ExprAST {
+    std::string name_;              // variable name
+    std::unique_ptr<ExprAST> init_; // initialization expression
+
+  public:
+    DeclarationExprAST(const std::string &name, std::unique_ptr<ExprAST> v)
+        : name_(name), init_(std::move(v)) {}
+    const std::string &getName() const { return name_; }
+    llvm::Value *codegen() override;
+};
+
+class UnaryOpExprAST : public ExprAST {
     char op_;
     std::unique_ptr<ExprAST> operand_;
 
   public:
-    UnaryExprAST(char op, std::unique_ptr<ExprAST> operand)
+    UnaryOpExprAST(char op, std::unique_ptr<ExprAST> operand)
         : op_(op), operand_(std::move(operand)) {}
     llvm::Value *codegen() override;
 };
 
-class BinaryExprAST : public ExprAST {
-    char Op;
-    std::unique_ptr<ExprAST> Lhs;
-    std::unique_ptr<ExprAST> Rhs;
+class BinaryOpExprAST : public ExprAST {
+    char op_;
+    std::unique_ptr<ExprAST> lhs_;
+    std::unique_ptr<ExprAST> rhs_;
 
   public:
-    BinaryExprAST(char op, std::unique_ptr<ExprAST> lhs, std::unique_ptr<ExprAST> rhs)
-        : Op(op), Lhs(std::move(lhs)), Rhs(std::move(rhs)) {}
+    BinaryOpExprAST(char op, std::unique_ptr<ExprAST> lhs, std::unique_ptr<ExprAST> rhs)
+        : op_(op), lhs_(std::move(lhs)), rhs_(std::move(rhs)) {}
     llvm::Value *codegen() override;
 };
 
@@ -59,15 +72,15 @@ class CallExprAST : public ExprAST {
 /// PrototypeAST - This class represents the "prototype" for a function,
 /// which captures its name, and its argument names (thus implicitly the number
 /// of arguments the function takes).
-class PrototypeAST : public ExprAST {
+class PrototypeExprAST : public ExprAST {
     std::string name_;
     std::vector<std::string> args_;
     unsigned kind;                        // 0 = identifier, 1 = unary, 2 = binary.
     std::optional<unsigned> binary_prec_; // Precedence if a binary op
 
   public:
-    PrototypeAST(const std::string &name, std::vector<std::string> args, unsigned kind = 0,
-                 std::optional<unsigned> binary_prec = std::nullopt)
+    PrototypeExprAST(const std::string &name, std::vector<std::string> args, unsigned kind = 0,
+                     std::optional<unsigned> binary_prec = std::nullopt)
         : name_(name), args_(std::move(args)), kind(kind), binary_prec_(binary_prec) {}
 
     const std::string &getName() const { return name_; }
@@ -84,12 +97,12 @@ class PrototypeAST : public ExprAST {
 
     llvm::Function *codegen() override;
 };
-class FunctionAST : public ExprAST {
-    std::unique_ptr<PrototypeAST> proto_;
+class FunctionExprAST : public ExprAST {
+    std::unique_ptr<PrototypeExprAST> proto_;
     std::unique_ptr<ExprAST> body_;
 
   public:
-    FunctionAST(std::unique_ptr<PrototypeAST> Proto, std::unique_ptr<ExprAST> body)
+    FunctionExprAST(std::unique_ptr<PrototypeExprAST> Proto, std::unique_ptr<ExprAST> body)
         : proto_(std::move(Proto)), body_(std::move(body)) {}
     llvm::Function *codegen() override;
 };

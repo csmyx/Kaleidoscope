@@ -1,5 +1,6 @@
 #include "fmt/core.h"
 #include "global.h"
+#include "util.h"
 #include <cctype>
 #include <cstdio>
 #include <string>
@@ -32,6 +33,8 @@ int gettok() {
             return tok_unary;
         } else if (GlobIdentifierStr == "binary") {
             return tok_binary;
+        } else if (GlobIdentifierStr == "var") {
+            return tok_var;
         }
         return tok_identifier;
     }
@@ -108,9 +111,16 @@ int gettok() {
 
 [[maybe_unused]] int getNextToken() {
     GlobCurTok = gettok();
+    GlobTokCnt++;
     if (GlobCurTok == tok_error) {
-        fmt::print(stderr, "Error in GetNextToken: {}\n", GlobTokErrorInfo);
+        fmt::print(stderr, "Error when get next token: {}, token index: {}\n", GlobTokErrorInfo,
+                   GlobTokCnt);
         exit(1);
+    }
+    if constexpr (debug::show_token_cnt) {
+        if (GlobCurTok == tok_eof) {
+            fmt::print(stderr, "Total token count: {}\n", GlobTokCnt);
+        }
     }
     return GlobCurTok;
 };
@@ -120,5 +130,5 @@ int GetCurTokPrecedence() {
     if (iter != BinopPrecedence.end()) {
         return iter->second;
     }
-    return INVALID_TOK_PREC;
+    return INVALID_BINARY_OP_PREC;
 }

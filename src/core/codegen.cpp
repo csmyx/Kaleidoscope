@@ -1,4 +1,5 @@
 #include "ast.h"
+#include "fmt/core.h"
 #include "global.h"
 #include "util.h"
 #include <cstddef>
@@ -25,12 +26,30 @@ llvm::Value *NumberExprAST::codegen() {
     return llvm::ConstantFP::get(*TheContext, llvm::APFloat(Val));
 }
 
-llvm::Value *VariableAST::codegen() {
-    llvm::AllocaInst *alloca = NamedValues[name_];
-    if (!alloca) {
-        return LogErrorV("Unknown variable name");
+llvm::Value *VariableExprAST::codegen() {
+    auto iter = localVars.find(name_);
+    if (iter == localVars.end() || iter->second == nullptr) {
+        const std::string info = fmt::format("unknown variable name: {}", name_);
+        return LogErrorV(info.c_str());
     }
+    llvm::AllocaInst *alloca = iter->second;
     return Builder->CreateLoad(llvm::Type::getDoubleTy(*TheContext), alloca, name_.c_str());
+}
+
+llvm::Value *DeclarationExprAST::codegen() {
+    // Create an alloca for this variable.
+    llvm::Function *func = Builder->GetInsertBlock()->getParent();
+    llvm::AllocaInst *alloca = CreateEntryBlockAlloca(func, name_);
+    // Add arguments to variable symbol table.
+    localVars[name_] = alloca;
+    llvm::Value *init_v = init_->codegen();
+    if (!init_v) {
+        return LogErrorV("unknown value expression in delcaration initialization");
+    }
+    // Store the initial value into the alloca.
+    Builder->CreateStore(init_v, alloca);
+    // TODO: Declaration is not a valid expr, this should be changed to return null in the future.
+    return init_v;
 }
 
 llvm::Function *getFunction(std::string name) {
@@ -49,7 +68,7 @@ llvm::Function *getFunction(std::string name) {
     return nullptr;
 }
 
-llvm::Value *UnaryExprAST::codegen() {
+llvm::Value *UnaryOpExprAST::codegen() {
     llvm::Value *operand_v = operand_->codegen();
     if (!operand_v)
         return nullptr;
@@ -57,54 +76,75 @@ llvm::Value *UnaryExprAST::codegen() {
     // Parse user defined binary op.
     llvm::Function *fn = getFunction(std::string("unary") + op_);
     if (!fn) {
-        return LogErrorV("Unknown unary operator");
+        return LogErrorV("unknown unary operator");
     }
 
     return Builder->CreateCall(fn, operand_v, "unop");
 }
 
-llvm::Value *BinaryExprAST::codegen() {
-    llvm::Value *LHS = Lhs->codegen();
-    llvm::Value *RHS = Rhs->codegen();
-    if (!LHS || !RHS) {
-        return nullptr;
+llvm::Value *BinaryOpExprAST::codegen() {
+    llvm::Value *lhs_v = lhs_->codegen();
+    llvm::Value *rhs_v = rhs_->codegen();
+    if (lhs_v == nullptr) {
+        return LogErrorV("codegen failed in LHS of binary op");
+    }
+    if (rhs_v == nullptr) {
+        return LogErrorV("codegen failed in RHS of binary op");
     }
 
-    switch (Op) {
+    // Parse assignment.
+    if (op_ == '=') {
+        // This assume we're building without RTTI because LLVM builds that way by
+        // default. If you build LLVM with RTTI this can be changed to a
+        // dynamic_cast for automatic error checking.
+        auto *var = static_cast<VariableExprAST *>(lhs_.get());
+        if (!var) {
+            return LogErrorV("destination of '=' must be a variable");
+        }
+        auto iter = localVars.find(var->getName());
+        if (iter == localVars.end() || iter->second == nullptr) {
+            return LogErrorV("unknown variable name in assignment");
+        }
+        llvm::AllocaInst *alloca = iter->second;
+        Builder->CreateStore(rhs_v, alloca);
+        return rhs_v;
+    }
+
+    switch (op_) {
     case '<':
-        LHS = Builder->CreateFCmpULT(LHS, RHS, "lttmp");
+        lhs_v = Builder->CreateFCmpULT(lhs_v, rhs_v, "lttmp");
         // Convert bool 0/1 to double 0.0 or 1.0
-        return Builder->CreateUIToFP(LHS, llvm::Type::getDoubleTy(*TheContext), "booltmp");
+        return Builder->CreateUIToFP(lhs_v, llvm::Type::getDoubleTy(*TheContext), "booltmp");
     case '>':
-        LHS = Builder->CreateFCmpUGT(LHS, RHS, "gttmp");
+        lhs_v = Builder->CreateFCmpUGT(lhs_v, rhs_v, "gttmp");
         // Convert bool 0/1 to double 0.0 or 1.0
-        return Builder->CreateUIToFP(LHS, llvm::Type::getDoubleTy(*TheContext), "booltmp");
+        return Builder->CreateUIToFP(lhs_v, llvm::Type::getDoubleTy(*TheContext), "booltmp");
     case '+':
-        return Builder->CreateFAdd(LHS, RHS, "addtmp");
+        return Builder->CreateFAdd(lhs_v, rhs_v, "addtmp");
     case '-':
-        return Builder->CreateFSub(LHS, RHS, "subtmp");
+        return Builder->CreateFSub(lhs_v, rhs_v, "subtmp");
     case '*':
-        return Builder->CreateFMul(LHS, RHS, "multmp");
+        return Builder->CreateFMul(lhs_v, rhs_v, "multmp");
     default:
         break;
     }
 
     // Parse user defined binary op.
-    llvm::Function *fn = getFunction(std::string("binary") + Op);
+    llvm::Function *fn = getFunction(std::string("binary") + op_);
     if (!fn) {
-        return LogErrorV("Invalid binary operator");
+        return LogErrorV("invalid binary operator");
     }
-    return Builder->CreateCall(fn, {LHS, RHS}, "binop");
+    return Builder->CreateCall(fn, {lhs_v, rhs_v}, "binop");
 }
 
 llvm::Value *CallExprAST::codegen() {
     // Look up the name in the global module table.
     llvm::Function *CalleeF = getFunction(Callee);
     if (!CalleeF)
-        return LogErrorV("Unknown function referenced");
+        return LogErrorV("unknown function referenced");
 
     if (CalleeF->arg_size() != Args.size())
-        return LogErrorV("Incorrect # arguments passed");
+        return LogErrorV("incorrect number of arguments passed");
 
     std::vector<llvm::Value *> ArgsV;
     for (unsigned i = 0, e = Args.size(); i != e; ++i) {
@@ -116,7 +156,7 @@ llvm::Value *CallExprAST::codegen() {
     return Builder->CreateCall(CalleeF, ArgsV, "calltmp");
 }
 
-llvm::Function *PrototypeAST::codegen() {
+llvm::Function *PrototypeExprAST::codegen() {
     std::vector<llvm::Type *> params_type(args_.size(), llvm::Type::getDoubleTy(*TheContext));
     llvm::FunctionType *FT =
         llvm::FunctionType::get(llvm::Type::getDoubleTy(*TheContext), params_type, false);
@@ -130,10 +170,10 @@ llvm::Function *PrototypeAST::codegen() {
     return F;
 }
 
-llvm::Function *FunctionAST::codegen() {
+llvm::Function *FunctionExprAST::codegen() {
     // Transfer ownership of the prototype to the FunctionProtos map, but keep a reference to it for
     // use below.
-    PrototypeAST &proto = *proto_;
+    PrototypeExprAST &proto = *proto_;
     FunctionProtos[proto_->getName()] = std::move(proto_);
     llvm::Function *func = getFunction(proto.getName());
 
@@ -151,14 +191,15 @@ llvm::Function *FunctionAST::codegen() {
     llvm::BasicBlock *BB = llvm::BasicBlock::Create(*TheContext, "entry", func);
     Builder->SetInsertPoint(BB);
 
-    NamedValues.clear();
+    // Variables outside the scope of this function are invisiable.
+    localVars.clear();
     for (auto &arg : func->args()) {
         // Create an alloca for this variable.
         llvm::AllocaInst *alloca = CreateEntryBlockAlloca(func, arg.getName());
-        // Stoer the initial value into the alloca.
+        // Store the initial value into the alloca.
         Builder->CreateStore(&arg, alloca);
         // Add arguments to variable symbol table.
-        NamedValues[std::string(arg.getName())] = alloca;
+        localVars[std::string(arg.getName())] = alloca;
     }
 
     if (llvm::Value *RetVal = body_->codegen()) {
@@ -253,8 +294,8 @@ llvm::Value *ForExprAST::codegen() {
 
     // Within the loop, the variable is defined equal to the Phi node. If it shadows an existing
     // variable, we have to restor it, so save it now.
-    llvm::AllocaInst *old_alloca = NamedValues[var_name_];
-    NamedValues[var_name_] = iter_alloca;
+    llvm::AllocaInst *old_alloca = localVars[var_name_];
+    localVars[var_name_] = iter_alloca;
 
     // Emit cond codegen, convert cond to a bool by comparing not-eqaul to 0.0.
     llvm::Value *cond_v = cond_->codegen();
@@ -311,9 +352,9 @@ llvm::Value *ForExprAST::codegen() {
 
     // Restore the unshadowed variable.
     if (old_alloca) {
-        NamedValues[var_name_] = old_alloca;
+        localVars[var_name_] = old_alloca;
     } else {
-        NamedValues.erase(var_name_);
+        localVars.erase(var_name_);
     }
     // for expr always returns 0.0.
     return llvm::Constant::getNullValue(llvm::Type::getDoubleTy(*TheContext));

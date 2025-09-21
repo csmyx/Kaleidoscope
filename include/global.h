@@ -40,7 +40,8 @@
 #include <vector>
 
 // token precedence
-#define INVALID_TOK_PREC -1
+#define INVALID_BINARY_OP_PREC -1 // precedenc for invalid binary op
+#define ASSIGNMENT_OP_PREC 5      // precedence for: '='
 #define COMPARE_OP_PREC 10        // precedence for: '<', '>'
 #define SUM_OP_PREC 20            // precedence for: '+', '-'
 #define MUL_OP_PREC 30            // precedence for: '*', '/'
@@ -59,22 +60,22 @@ enum token {
     tok_extern = -4,
     tok_identifier = -5,
     tok_number = -6,
-    // control
     tok_if = -7,
     tok_else = -8,
-    // loop
     tok_for = -9,
-    // operator
-    tok_unary = -10,
-    tok_binary = -11,
+    tok_unary = -10,        // unary operator
+    tok_binary = -11,       // binary operator
     tok_char_literal = -12, // char literal
+    tok_var = -13,          // var definition
 };
+
 extern std::string GlobIdentifierStr;
 extern double GlobNumVal;
 extern char GlobCharLiteral;
 extern int GlobCurTok;
 extern std::string GlobTokErrorInfo;
 int getNextToken();
+extern int GlobTokCnt;
 
 // parser
 void ParseMainLoop();
@@ -83,16 +84,10 @@ void ParseMainLoop();
 extern std::unique_ptr<llvm::LLVMContext> TheContext;
 extern std::unique_ptr<llvm::IRBuilder<>> Builder;
 extern std::unique_ptr<llvm::Module> TheModule;
-extern std::map<std::string, llvm::AllocaInst *> NamedValues;
+extern std::map<std::string, llvm::AllocaInst *> localVars;
 extern std::unique_ptr<llvm::legacy::FunctionPassManager> TheFPM;
-// extern std::unique_ptr<llvm::LoopAnalysisManager> TheLAM;
-// extern std::unique_ptr<llvm::FunctionAnalysisManager> TheFAM;
-// extern std::unique_ptr<llvm::CGSCCAnalysisManager> TheCGAM;
-// extern std::unique_ptr<llvm::ModuleAnalysisManager> TheMAM;
-// extern std::unique_ptr<llvm::PassInstrumentationCallbacks> ThePIC;
-// extern std::unique_ptr<llvm::StandardInstrumentations> TheSI;
-class PrototypeAST;
-extern std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
+class PrototypeExprAST;
+extern std::map<std::string, std::unique_ptr<PrototypeExprAST>> FunctionProtos;
 extern std::map<char, int> BinopPrecedence;
 extern std::set<char> UnaryOp;
 extern llvm::ExitOnError ExitOnErr;

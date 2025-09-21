@@ -5,10 +5,10 @@
 
 std::unique_ptr<ExprAST> LogError(const char *Str) {
     fmt::print(stderr, "Error: {}\n", Str);
-    exit(1);
+    // exit(1);
     return nullptr;
 }
-std::unique_ptr<PrototypeAST> LogErrorP(const char *Str) {
+std::unique_ptr<PrototypeExprAST> LogErrorP(const char *Str) {
     LogError(Str);
     return nullptr;
 }

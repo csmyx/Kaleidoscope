@@ -355,6 +355,7 @@ entry:
   %calltmp = call double @mandel(double %unop, double %unop1, double 2.000000e-02, double 3.000000e-02)
   ret double %calltmp
 }
+Total token count: 361
 ; ModuleID = 'my cool jit'
 source_filename = "my cool jit"
 target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"

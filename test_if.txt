@@ -1,4 +1,4 @@
-ready> test1:
+test1:
 -
 -
 -

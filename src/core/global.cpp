@@ -8,22 +8,17 @@ double GlobNumVal;
 char GlobCharLiteral;
 std::string GlobTokErrorInfo;
 int GlobCurTok;
+int GlobTokCnt = 0;
 
 // llvm relative global vriables
 std::unique_ptr<llvm::LLVMContext> TheContext;
 std::unique_ptr<llvm::IRBuilder<>> Builder;
 std::unique_ptr<llvm::Module> TheModule;
-std::map<std::string, llvm::AllocaInst *> NamedValues;
+std::map<std::string, llvm::AllocaInst *> localVars; // local variables in current function scope
 
 // std::unique_ptr<KaleidoscopeJIT> TheJIT;
 std::unique_ptr<llvm::legacy::FunctionPassManager> TheFPM;
-// std::unique_ptr<llvm::LoopAnalysisManager> TheLAM;
-// std::unique_ptr<llvm::FunctionAnalysisManager> TheFAM;
-// std::unique_ptr<llvm::CGSCCAnalysisManager> TheCGAM;
-// std::unique_ptr<llvm::ModuleAnalysisManager> TheMAM;
-// std::unique_ptr<llvm::PassInstrumentationCallbacks> ThePIC;
-// std::unique_ptr<llvm::StandardInstrumentations> TheSI;
-std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
+std::map<std::string, std::unique_ptr<PrototypeExprAST>> FunctionProtos;
 std::map<char, int> BinopPrecedence;
 std::set<char> UnaryOp;
 llvm::ExitOnError ExitOnErr;

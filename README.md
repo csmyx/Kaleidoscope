@@ -46,3 +46,8 @@ Windows里GLOBAL符号外部可见性默认是：外部不可见。
 TODO: 
 - 异常处理只是打印warning info或者直接exit，待规范异常处理
 - unary binary 重载需要添加特殊符号判定，比如 `(`, `)`, `'` 等符号不能被重载
+- firendly error msg (print values rather then a singal const string)
+
+- 由于当前函数体支持一条语句, 为了测试var声明语句正确性,只能将其视作返回其初始化值的表达式, 不然无法运行下面的测试实例
+`prefix(3) : var y = 4 : test2(123, y);`
+待修改为正确实现: 将 var 语句作为顶层的独立语句来解析 即和函数定义的def一样, 它不应该存在返回值,即codegen应该返回nullptr.

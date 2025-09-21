@@ -36,7 +36,7 @@ rebuild: clean config build
 
 reconfig: clean config
 
-TEST_LIST = test_if test_for test_mandelbrot_set
+TEST_LIST = test_if test_for test_mandelbrot_set test_var_declar_assign
 
 # files of test:
 # input file -> test_name.sh, 
