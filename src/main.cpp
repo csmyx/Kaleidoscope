@@ -1,12 +1,9 @@
-#include "KaleidoscopeJIT.h"
 #include "global.h"
 
 int main() {
-    llvm::InitializeNativeTarget();
-    llvm::InitializeNativeTargetAsmPrinter();
-    llvm::InitializeNativeTargetAsmParser();
+    InitializeNativeTraget();
 
-    TheJIT = ExitOnErr(llvm::orc::KaleidoscopeJIT::Create());
+    InitializeJIT();
 
     // Make the module, which holds all the code.
     InitializeModuleAndManager();
@@ -14,8 +11,7 @@ int main() {
     // Run the main "interpreter loop" now.
     ParseMainLoop();
 
-    // Print out all of the generated code.
-    TheModule->print(llvm::errs(), nullptr);
+    EmitObjectFile();
 
     return 0;
 }

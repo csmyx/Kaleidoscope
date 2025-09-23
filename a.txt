@@ -1,0 +1,205 @@
+cmake --build build --target kaleidoscope_lib
+gmake[1]: Entering directory '/home/hugo/cpp_repos/Kaleidoscope/build'
+gmake[2]: Entering directory '/home/hugo/cpp_repos/Kaleidoscope/build'
+gmake[3]: Entering directory '/home/hugo/cpp_repos/Kaleidoscope/build'
+gmake[4]: Entering directory '/home/hugo/cpp_repos/Kaleidoscope/build'
+gmake[4]: Leaving directory '/home/hugo/cpp_repos/Kaleidoscope/build'
+[ 17%] Built target fmt
+gmake[4]: Entering directory '/home/hugo/cpp_repos/Kaleidoscope/build'
+gmake[4]: Leaving directory '/home/hugo/cpp_repos/Kaleidoscope/build'
+[ 64%] Built target spdlog
+gmake[4]: Entering directory '/home/hugo/cpp_repos/Kaleidoscope/build'
+gmake[4]: Leaving directory '/home/hugo/cpp_repos/Kaleidoscope/build'
+gmake[4]: Entering directory '/home/hugo/cpp_repos/Kaleidoscope/build'
+[ 70%] Linking CXX shared library libkaleidoscope_lib.so
+/usr/bin/ld: cannot find -lLLVM::LLVMDemangle: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMSupport: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMTableGen: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMTableGenGlobalISel: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMCore: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMFuzzMutate: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMFileCheck: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMInterfaceStub: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMIRReader: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMCodeGen: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMSelectionDAG: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAsmPrinter: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMMIRParser: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMGlobalISel: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMBinaryFormat: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMBitReader: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMBitWriter: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMBitstreamReader: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMDWARFLinker: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMExtensions: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMFrontendOpenACC: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMFrontendOpenMP: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMTransformUtils: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMInstrumentation: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAggressiveInstCombine: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMInstCombine: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMScalarOpts: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMipo: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMVectorize: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMObjCARCOpts: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMCoroutines: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMCFGuard: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMLinker: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAnalysis: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMLTO: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMMC: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMMCParser: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMMCDisassembler: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMMCA: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMObject: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMObjectYAML: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMOption: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMRemarks: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMDebuginfod: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMDebugInfoDWARF: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMDebugInfoGSYM: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMDebugInfoMSF: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMDebugInfoCodeView: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMDebugInfoPDB: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMSymbolize: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMDWP: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMExecutionEngine: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMInterpreter: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMJITLink: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMMCJIT: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMOrcJIT: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMOrcShared: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMOrcTargetProcess: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMRuntimeDyld: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMPerfJITEvents: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMTarget: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAArch64CodeGen: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAArch64AsmParser: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAArch64Disassembler: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAArch64Desc: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAArch64Info: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAArch64Utils: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAMDGPUCodeGen: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAMDGPUAsmParser: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAMDGPUDisassembler: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAMDGPUTargetMCA: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAMDGPUDesc: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAMDGPUInfo: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAMDGPUUtils: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMARMCodeGen: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMARMAsmParser: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMARMDisassembler: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMARMDesc: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMARMInfo: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMARMUtils: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAVRCodeGen: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAVRAsmParser: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAVRDisassembler: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAVRDesc: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAVRInfo: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMBPFCodeGen: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMBPFAsmParser: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMBPFDisassembler: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMBPFDesc: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMBPFInfo: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMHexagonCodeGen: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMHexagonAsmParser: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMHexagonDisassembler: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMHexagonDesc: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMHexagonInfo: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMLanaiCodeGen: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMLanaiAsmParser: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMLanaiDisassembler: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMLanaiDesc: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMLanaiInfo: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMMipsCodeGen: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMMipsAsmParser: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMMipsDisassembler: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMMipsDesc: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMMipsInfo: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMMSP430CodeGen: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMMSP430Desc: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMMSP430Info: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMMSP430AsmParser: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMMSP430Disassembler: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMNVPTXCodeGen: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMNVPTXDesc: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMNVPTXInfo: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMPowerPCCodeGen: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMPowerPCAsmParser: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMPowerPCDisassembler: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMPowerPCDesc: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMPowerPCInfo: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMRISCVCodeGen: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMRISCVAsmParser: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMRISCVDisassembler: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMRISCVDesc: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMRISCVInfo: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMSparcCodeGen: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMSparcAsmParser: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMSparcDisassembler: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMSparcDesc: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMSparcInfo: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMSystemZCodeGen: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMSystemZAsmParser: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMSystemZDisassembler: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMSystemZDesc: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMSystemZInfo: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMVECodeGen: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMVEAsmParser: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMVEDisassembler: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMVEInfo: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMVEDesc: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMWebAssemblyCodeGen: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMWebAssemblyAsmParser: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMWebAssemblyDisassembler: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMWebAssemblyDesc: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMWebAssemblyInfo: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMWebAssemblyUtils: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMX86CodeGen: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMX86AsmParser: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMX86Disassembler: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMX86TargetMCA: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMX86Desc: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMX86Info: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMXCoreCodeGen: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMXCoreDisassembler: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMXCoreDesc: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMXCoreInfo: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMM68kCodeGen: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMM68kInfo: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMM68kDesc: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMM68kAsmParser: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMM68kDisassembler: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMAsmParser: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMLineEditor: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMProfileData: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMCoverage: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMPasses: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMTextAPI: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMDlltoolDriver: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMLibDriver: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMXRay: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMWindowsManifest: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LTO: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::MLIRSupportIndentedOstream: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMCFIVerify: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMDiff: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMExegesisX86: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMExegesisAArch64: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMExegesisPowerPC: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMExegesisMips: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVMExegesis: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::LLVM: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::Remarks: No such file or directory
+/usr/bin/ld: cannot find -lLLVM::Polly: No such file or directory
+clang++: error: linker command failed with exit code 1 (use -v to see invocation)
+gmake[4]: *** [src/core/CMakeFiles/kaleidoscope_lib.dir/build.make:163: src/core/libkaleidoscope_lib.so] Error 1
+gmake[4]: Leaving directory '/home/hugo/cpp_repos/Kaleidoscope/build'
+gmake[3]: *** [CMakeFiles/Makefile2:251: src/core/CMakeFiles/kaleidoscope_lib.dir/all] Error 2
+gmake[3]: Leaving directory '/home/hugo/cpp_repos/Kaleidoscope/build'
+gmake[2]: *** [CMakeFiles/Makefile2:258: src/core/CMakeFiles/kaleidoscope_lib.dir/rule] Error 2
+gmake[2]: Leaving directory '/home/hugo/cpp_repos/Kaleidoscope/build'
+gmake[1]: *** [Makefile:209: kaleidoscope_lib] Error 2
+gmake[1]: Leaving directory '/home/hugo/cpp_repos/Kaleidoscope/build'
+make: *** [Makefile:24: build_lib] Error 2

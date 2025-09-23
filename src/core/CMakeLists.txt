@@ -14,20 +14,49 @@ find_package(LLVM 14 REQUIRED CONFIG)
 message(STATUS "LLVM_DIR: ${LLVM_DIR}")
 message(STATUS "Found LLVM Version: ${LLVM_PACKAGE_VERSION}")
 
-# https://github.com/llvm/llvm-project/blob/llvmorg-14.0.0/llvm/examples/Kaleidoscope/Chapter4/CMakeLists.txt
-llvm_map_components_to_libnames(llvm_libs
-  Analysis
-  Core
-  ExecutionEngine
-  InstCombine
-  Object
-  OrcJIT
-  RuntimeDyld
-  ScalarOpts
-  Support
-  native
-)
-target_link_libraries(${PROJECT_NAME}_lib PUBLIC ${llvm_libs})
+# find_program(LLVM_CONFIG llvm-config)
+# if(NOT LLVM_CONFIG)
+#     message(FATAL_ERROR "llvm-config not found! Please install LLVM or add it to PATH.")
+# endif()
+
+# # 2. 通过llvm-config获取所有组件
+# execute_process(
+#     COMMAND ${LLVM_CONFIG} --components
+#     OUTPUT_VARIABLE LLVM_ALL_COMPONENTS
+#     OUTPUT_STRIP_TRAILING_WHITESPACE
+# )
+# # 将空格分隔的组件列表转换为CMake列表（分号分隔）
+# string(REPLACE " " ";" LLVM_ALL_COMPONENTS ${LLVM_ALL_COMPONENTS})
+
+# message(STATUS "LLVM_LIBS: ${LLVM_LIBS}")
+# if(TARGET LLVM)
+#     message(STATUS "LLVM: ${LLVM}")
+# else()
+#     message(STATUS "llvm not exists")
+# endif()
+
+# # https://github.com/llvm/llvm-project/blob/llvmorg-14.0.0/llvm/examples/Kaleidoscope/Chapter4/CMakeLists.txt
+# llvm_map_components_to_libnames(llvm_libs
+#   Analysis
+#   Core
+#   ExecutionEngine
+#   InstCombine
+#   Object
+#   OrcJIT
+#   RuntimeDyld
+#   ScalarOpts
+#   Support
+#   native
+# )
+
+# message(STATUS "llvm_libs: ${llvm_libs}")
+# target_link_libraries(${PROJECT_NAME}_lib PUBLIC ${llvm_libs})
+target_link_libraries(${PROJECT_NAME}_lib PUBLIC LLVM-14)
+
+add_definitions(${LLVM_DEFINITIONS})
+if(NOT ${LLVM_ENABLE_RTTI})
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
+endif()
 
 # 引入 FetchContent 模块
 include(FetchContent)

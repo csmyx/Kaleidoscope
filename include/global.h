@@ -1,7 +1,9 @@
 #pragma once
 
 #include "KaleidoscopeJIT.h"
+#include "util.h"
 #include "llvm/ADT/APFloat.h"
+#include "llvm/ADT/Optional.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/IR/BasicBlock.h"
 #include "llvm/IR/Constants.h"
@@ -15,10 +17,15 @@
 #include "llvm/IR/PassManager.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Verifier.h"
+#include "llvm/MC/TargetRegistry.h"
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Passes/StandardInstrumentations.h"
+#include "llvm/Support/FileSystem.h"
+#include "llvm/Support/Host.h"
 #include "llvm/Support/TargetSelect.h"
+#include "llvm/Support/raw_ostream.h"
 #include "llvm/Target/TargetMachine.h"
+#include "llvm/Target/TargetOptions.h"
 #include "llvm/Transforms/InstCombine/InstCombine.h"
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Transforms/Scalar/GVN.h"
@@ -31,8 +38,15 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <llvm-14/llvm/ADT/StringExtras.h>
 #include <llvm-14/llvm/ExecutionEngine/Orc/ThreadSafeModule.h>
+#include <llvm-14/llvm/IR/Function.h>
 #include <llvm-14/llvm/IR/Instructions.h>
+#include <llvm-14/llvm/Transforms/InstCombine/InstCombine.h>
+#include <llvm-14/llvm/Transforms/Scalar.h>
+#include <llvm-14/llvm/Transforms/Scalar/GVN.h>
+#include <llvm-14/llvm/Transforms/Utils.h>
+#include <llvm-c-14/llvm-c/TargetMachine.h>
 #include <map>
 #include <memory>
 #include <optional>
@@ -51,6 +65,9 @@
 #define ID_PROTOTYPE_KIND 0
 #define UNARY_PROTOTYPE_KIND 1
 #define BINARY_PROTOTYPE_KIND 2
+
+// top expression anonymous function name
+#define TOP_EXPR_FUNC_NAME "__anon_expr"
 
 // tokenizer
 enum token {
@@ -77,22 +94,27 @@ extern std::string GlobTokErrorInfo;
 int getNextToken();
 extern int GlobTokCnt;
 
-// parser
-void ParseMainLoop();
-
 // llvm relative global vriables
 extern std::unique_ptr<llvm::LLVMContext> TheContext;
 extern std::unique_ptr<llvm::IRBuilder<>> Builder;
 extern std::unique_ptr<llvm::Module> TheModule;
 extern std::map<std::string, llvm::AllocaInst *> localVars;
-extern std::unique_ptr<llvm::legacy::FunctionPassManager> TheFPM;
 class PrototypeExprAST;
 extern std::map<std::string, std::unique_ptr<PrototypeExprAST>> FunctionProtos;
 extern std::map<char, int> BinopPrecedence;
 extern std::set<char> UnaryOp;
 extern llvm::ExitOnError ExitOnErr;
-extern std::unique_ptr<llvm::orc::KaleidoscopeJIT> TheJIT;
+
+void InitializeNativeTraget();
 void InitializeModuleAndManager();
+void EmitObjectFile();
 
 // lexer
 int GetCurTokPrecedence();
+// parser
+void ParseMainLoop();
+
+// JIT
+extern std::unique_ptr<llvm::legacy::FunctionPassManager> TheFPM;
+extern std::unique_ptr<llvm::orc::KaleidoscopeJIT> TheJIT;
+void InitializeJIT();

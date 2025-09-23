@@ -1,17 +1,20 @@
 #include "KaleidoscopeJIT.h"
 #include "ast.h"
+#include "fmt/base.h"
 #include "fmt/core.h"
 #include "global.h"
 #include "util.h"
 #include <cstdio>
-#include <llvm-14/llvm/ADT/StringExtras.h>
-#include <llvm-14/llvm/IR/Function.h>
-#include <llvm-14/llvm/Transforms/InstCombine/InstCombine.h>
-#include <llvm-14/llvm/Transforms/Scalar.h>
-#include <llvm-14/llvm/Transforms/Scalar/GVN.h>
-#include <llvm-14/llvm/Transforms/Utils.h>
+#include <llvm-14/llvm/IR/LegacyPassManager.h>
+#include <llvm-14/llvm/MC/TargetRegistry.h>
+#include <llvm-14/llvm/Support/CodeGen.h>
+#include <llvm-14/llvm/Support/Host.h>
+#include <llvm-14/llvm/Support/raw_ostream.h>
+#include <llvm-14/llvm/Target/TargetOptions.h>
 #include <memory>
 #include <optional>
+#include <system_error>
+#include <unistd.h>
 
 #define EXPECT_AND_EAT_TOKEN(tok)                                                                  \
     do {                                                                                           \
@@ -276,7 +279,8 @@ std::unique_ptr<ExprAST> ParseExpression() {
 std::unique_ptr<FunctionExprAST> ParseTopLevelExpr() {
     if (auto E = ParseExpression()) {
         // Make an anonymous proto.
-        auto Proto = std::make_unique<PrototypeExprAST>("__anon_expr", std::vector<std::string>());
+        auto Proto =
+            std::make_unique<PrototypeExprAST>(TOP_EXPR_FUNC_NAME, std::vector<std::string>());
         return std::make_unique<FunctionExprAST>(std::move(Proto), std::move(E));
     }
     return nullptr;
@@ -380,9 +384,11 @@ void HandleDefinition() {
                     fprintf(stderr, "Read function definition:\n");
                 FnIR->print(llvm::errs());
             }
-            auto TSM = llvm::orc::ThreadSafeModule(std::move(TheModule), std::move(TheContext));
-            ExitOnErr(TheJIT->addModule(std::move(TSM)));
-            InitializeModuleAndManager();
+            if constexpr (debug::turn_on_jit) {
+                auto TSM = llvm::orc::ThreadSafeModule(std::move(TheModule), std::move(TheContext));
+                ExitOnErr(TheJIT->addModule(std::move(TSM)));
+                InitializeModuleAndManager();
+            }
         }
     } else {
         // Skip token for error recovery.
@@ -406,6 +412,32 @@ void HandleExtern() {
     }
 }
 
+static void runTopExprFuncInJIT() {
+    // Create a ResourceTracker to track JIT'd memory allocated to our
+    // anonymous expression -- that way we can free it after executing.
+    auto RT = TheJIT->getMainJITDylib().createResourceTracker();
+
+    auto TSM = llvm::orc::ThreadSafeModule(std::move(TheModule), std::move(TheContext));
+    ExitOnErr(TheJIT->addModule(std::move(TSM), RT));
+    InitializeModuleAndManager();
+
+    // Search the JIT for the __anon_expr symbol.
+    auto ExprSymbol = ExitOnErr(TheJIT->lookup(TOP_EXPR_FUNC_NAME));
+    assert(ExprSymbol && "Function not found");
+
+    // Get the symbol's address and cast it to the right type (takes no
+    // arguments, return a double) so we can call it as a native function.
+    double (*FP)() = (double (*)())(intptr_t)ExprSymbol.getAddress();
+    [[maybe_unused]] auto res = FP();
+
+    if constexpr (debug::show_jit_evaluate_result) {
+        fprintf(stderr, "Evaluated to %f\n", res);
+    }
+
+    // Delete the anonymou expression module from the JIT.
+    ExitOnErr(RT->remove());
+}
+
 void HandleTopLevelExpression() {
     // Evaluate a top-level expression into an anonymous function.
     if (auto FnAST = ParseTopLevelExpr()) {
@@ -415,30 +447,9 @@ void HandleTopLevelExpression() {
                     fprintf(stderr, "Read top-level expression:\n");
                 FnIR->print(llvm::errs());
             }
-
-            // Create a ResourceTracker to track JIT'd memory allocated to our
-            // anonymous expression -- that way we can free it after executing.
-            auto RT = TheJIT->getMainJITDylib().createResourceTracker();
-
-            auto TSM = llvm::orc::ThreadSafeModule(std::move(TheModule), std::move(TheContext));
-            ExitOnErr(TheJIT->addModule(std::move(TSM), RT));
-            InitializeModuleAndManager();
-
-            // Search the JIT for the __anon_expr symbol.
-            auto ExprSymbol = ExitOnErr(TheJIT->lookup("__anon_expr"));
-            assert(ExprSymbol && "Function not found");
-
-            // Get the symbol's address and cast it to the right type (takes no
-            // arguments, return a double) so we can call it as a native function.
-            double (*FP)() = (double (*)())(intptr_t)ExprSymbol.getAddress();
-            [[maybe_unused]] auto res = FP();
-
-            if constexpr (debug::show_jit_res) {
-                fprintf(stderr, "Evaluated to %f\n", res);
+            if constexpr (debug::turn_on_jit) {
+                runTopExprFuncInJIT();
             }
-
-            // Delete the anonymou expression module from the JIT.
-            ExitOnErr(RT->remove());
         }
     } else {
         // Skip token for error recovery.
@@ -446,32 +457,76 @@ void HandleTopLevelExpression() {
     }
 }
 
+void InitializeNativeTraget() {
+    llvm::InitializeNativeTarget();
+    llvm::InitializeNativeTargetAsmPrinter();
+    llvm::InitializeNativeTargetAsmParser();
+}
+
+void InitializeJIT() {
+    if constexpr (debug::turn_on_jit) {
+        TheJIT = ExitOnErr(llvm::orc::KaleidoscopeJIT::Create());
+    }
+}
+
 // Must be called before calling [ParseMainLoop]
 void InitializeModuleAndManager() {
     // Open a new context and module.
     TheContext = std::make_unique<llvm::LLVMContext>();
-    TheModule = std::make_unique<llvm::Module>("my cool jit", *TheContext);
-    TheModule->setDataLayout(TheJIT->getDataLayout());
+    TheModule = std::make_unique<llvm::Module>("new module", *TheContext);
 
     // Create a new builder for the module.
     Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
-
-    // Create new pass and analysis managers.
-    TheFPM = std::make_unique<llvm::legacy::FunctionPassManager>(TheModule.get());
-
-    // Promote allocas to registers.
-    TheFPM->add(llvm::createPromoteMemoryToRegisterPass());
-    // Do simple "peephole" optimizations and bit-twiddling optimizations.
-    TheFPM->add(llvm::createInstructionCombiningPass());
-    // Reassociate expressions.
-    TheFPM->add(llvm::createReassociatePass());
-    // Eliminate Common SubExpressions.
-    TheFPM->add(llvm::createGVNPass());
-    // Simplify the control flow graph (deleting unrechable blocks, etc).
-    TheFPM->add(llvm::createCFGSimplificationPass());
-
-    TheFPM->doInitialization();
 }
+
+void EmitObjectFile() {
+    // Initialize the target registry etc.
+    llvm::InitializeAllTargetInfos();
+    llvm::InitializeAllTargets();
+    llvm::InitializeAllTargetMCs();
+    llvm::InitializeAllAsmParsers();
+    llvm::InitializeAllAsmPrinters();
+
+    const std::string &target_triple = llvm::sys::getDefaultTargetTriple();
+    TheModule->setTargetTriple(target_triple);
+
+    std::string error;
+    const llvm::Target *target = llvm::TargetRegistry::lookupTarget(target_triple, error);
+
+    // Print an error and exit if we couldn't find the requested target.
+    // This generally occurs if we've forgotten to initialise the
+    // TargetRegistry or we have a bogus target triple.
+    if (!target) {
+        llvm::errs() << error;
+        exit(1);
+    }
+
+    auto cpu = "genric";
+    auto features = "";
+    llvm::TargetOptions options;
+    auto rm = llvm::Optional<llvm::Reloc::Model>();
+    auto the_target_machine =
+        target->createTargetMachine(target_triple, cpu, features, options, rm);
+    TheModule->setDataLayout(the_target_machine->createDataLayout());
+
+    auto file_name = "output.o";
+    std::error_code ec;
+    llvm::raw_fd_ostream dest(file_name, ec, llvm::sys::fs::OF_None);
+    if (ec) {
+        llvm::errs() << "could not open file: " << ec.message();
+        exit(1);
+    }
+
+    llvm::legacy::PassManager pass;
+    auto file_type = llvm::CGFT_ObjectFile;
+    if (the_target_machine->addPassesToEmitFile(pass, dest, nullptr, file_type)) {
+        llvm::errs() << "the target machine can't emit a file of this type";
+        exit(1);
+    }
+    pass.run(*TheModule);
+    dest.flush();
+    llvm::outs() << "wrote to " << file_name << "\n";
+};
 
 static void initParse() {
     BinopPrecedence['<'] = BinopPrecedence['>'] = COMPARE_OP_PREC;
@@ -518,4 +573,8 @@ void ParseMainLoop() {
     }
 finish:
     fflush(stdout);
+    // Print out all of the generated code.
+    if constexpr (debug::show_llvm_prompt) {
+        TheModule->print(llvm::errs(), nullptr);
+    }
 }
