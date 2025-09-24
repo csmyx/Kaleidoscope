@@ -2,18 +2,6 @@
 #include "fmt/core.h"
 #include "global.h"
 #include "util.h"
-#include <cstddef>
-#include <llvm-14/llvm/ADT/APFloat.h>
-#include <llvm-14/llvm/IR/Attributes.h>
-#include <llvm-14/llvm/IR/BasicBlock.h>
-#include <llvm-14/llvm/IR/Constant.h>
-#include <llvm-14/llvm/IR/Constants.h>
-#include <llvm-14/llvm/IR/Function.h>
-#include <llvm-14/llvm/IR/Instructions.h>
-#include <llvm-14/llvm/IR/Type.h>
-#include <llvm-14/llvm/IR/Use.h>
-#include <llvm-14/llvm/IR/Value.h>
-#include <llvm-14/llvm/IR/Verifier.h>
 
 /// CreateEntryBlockAlloca - Create an alloca instruction in the entry block of
 /// the function.  This is used for mutable variables etc.
@@ -250,7 +238,7 @@ llvm::Value *IfExprAST::codegen() {
     then_bb = Builder->GetInsertBlock();
 
     // Emit else block.
-    func->getBasicBlockList().push_back(else_bb);
+    func->insert(func->end(), else_bb);
     Builder->SetInsertPoint(else_bb);
     llvm::Value *else_v = else_br_->codegen();
     if (!else_v) {
@@ -261,7 +249,7 @@ llvm::Value *IfExprAST::codegen() {
     else_bb = Builder->GetInsertBlock();
 
     // Emit merge block.
-    func->getBasicBlockList().push_back(merge_bb);
+    func->insert(func->end(), merge_bb);
     Builder->SetInsertPoint(merge_bb);
     llvm::PHINode *phi_node = Builder->CreatePHI(llvm::Type::getDoubleTy(*TheContext), 2, "iftmp");
     phi_node->addIncoming(then_v, then_bb);

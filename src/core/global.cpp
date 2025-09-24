@@ -1,7 +1,6 @@
 #include "global.h"
 #include "KaleidoscopeJIT.h"
 #include "ast.h"
-#include <llvm-14/llvm/IR/Instructions.h>
 
 std::string GlobIdentifierStr;
 double GlobNumVal;
@@ -23,4 +22,4 @@ std::set<char> UnaryOp;
 
 // JIT relative global variable
 std::unique_ptr<llvm::orc::KaleidoscopeJIT> TheJIT;
-std::unique_ptr<llvm::legacy::FunctionPassManager> TheFPM;
+std::unique_ptr<llvm::FunctionPassManager> TheFPM;

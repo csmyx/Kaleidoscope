@@ -1,6 +1,6 @@
 #pragma once
 
-#include <llvm-14/llvm/IR/Value.h>
+#include <llvm/IR/Value.h>
 #include <memory>
 
 class ExprAST;
@@ -20,7 +20,7 @@ constexpr bool show_llvm_prompt = false;         // whether to display llvm prom
 constexpr bool show_jit_evaluate_result = false; // whether to display JIT evaluate result
 constexpr bool show_jit_session = true;          // whether to display JIT session
 constexpr bool show_input_prompt = false;        // whether to print input prompt to users
-constexpr bool show_token_cnt = true;            // whether to print token cnt
+constexpr bool show_token_cnt = false;           // whether to print token cnt
 constexpr bool turn_on_jit = true;               // whether to turn on JIT mode
 constexpr bool emit_object_file = true;          // whether to emit object file
 } // namespace debug

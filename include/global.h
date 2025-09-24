@@ -1,12 +1,11 @@
 #pragma once
 
-#include "KaleidoscopeJIT.h"
 #include "util.h"
-#include "llvm/ADT/APFloat.h"
-#include "llvm/ADT/Optional.h"
-#include "llvm/ADT/STLExtras.h"
+#include "llvm/ExecutionEngine/Orc/CompileUtils.h"
+#include "llvm/ExecutionEngine/Orc/ExecutionUtils.h"
+#include "llvm/ExecutionEngine/Orc/IRCompileLayer.h"
 #include "llvm/IR/BasicBlock.h"
-#include "llvm/IR/Constants.h"
+#include "llvm/IR/DataLayout.h"
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/IRBuilder.h"
@@ -14,44 +13,14 @@
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/IR/Module.h"
-#include "llvm/IR/PassManager.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Verifier.h"
-#include "llvm/MC/TargetRegistry.h"
-#include "llvm/Passes/PassBuilder.h"
-#include "llvm/Passes/StandardInstrumentations.h"
-#include "llvm/Support/FileSystem.h"
-#include "llvm/Support/Host.h"
-#include "llvm/Support/TargetSelect.h"
-#include "llvm/Support/raw_ostream.h"
-#include "llvm/Target/TargetMachine.h"
-#include "llvm/Target/TargetOptions.h"
-#include "llvm/Transforms/InstCombine/InstCombine.h"
-#include "llvm/Transforms/Scalar.h"
-#include "llvm/Transforms/Scalar/GVN.h"
-#include "llvm/Transforms/Scalar/Reassociate.h"
-#include "llvm/Transforms/Scalar/SimplifyCFG.h"
-#include "llvm/Transforms/Utils.h"
-#include <algorithm>
 #include <cassert>
 #include <cctype>
-#include <cstdint>
-#include <cstdio>
 #include <cstdlib>
-#include <llvm-14/llvm/ADT/StringExtras.h>
-#include <llvm-14/llvm/ExecutionEngine/Orc/ThreadSafeModule.h>
-#include <llvm-14/llvm/IR/Function.h>
-#include <llvm-14/llvm/IR/Instructions.h>
-#include <llvm-14/llvm/Transforms/InstCombine/InstCombine.h>
-#include <llvm-14/llvm/Transforms/Scalar.h>
-#include <llvm-14/llvm/Transforms/Scalar/GVN.h>
-#include <llvm-14/llvm/Transforms/Utils.h>
-#include <llvm-c-14/llvm-c/TargetMachine.h>
 #include <map>
 #include <memory>
-#include <optional>
 #include <string>
-#include <vector>
 
 // token precedence
 #define INVALID_BINARY_OP_PREC -1 // precedenc for invalid binary op
@@ -115,6 +84,12 @@ int GetCurTokPrecedence();
 void ParseMainLoop();
 
 // JIT
-extern std::unique_ptr<llvm::legacy::FunctionPassManager> TheFPM;
+extern std::unique_ptr<llvm::FunctionPassManager> TheFPM;
+namespace llvm {
+namespace orc {
+class KaleidoscopeJIT; // 前向声明类
+}
+} // namespace llvm
+
 extern std::unique_ptr<llvm::orc::KaleidoscopeJIT> TheJIT;
 void InitializeJIT();

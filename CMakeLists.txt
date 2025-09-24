@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-
+set(CMAKE_VERBOSE_MAKEFILE ON)  # 启用详细输出
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_COMPILER "clang")
 set(CMAKE_CXX_COMPILER "clang++")
@@ -7,12 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--dynamic-linker=/path/to/your/ld.so")
-# set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--dynamic-linker=/path/to/your/ld.so")
-
-# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
-# set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=lld")
-# set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -fuse-ld=lld")
+# Because out LLVM lib is compiled using libstdc++, so wo must keep the same as it. We can't use libc++.
+set(CMAKE_CXX_FLAGS "-stdlib=libstdc++")
 
 project(kaleidoscope LANGUAGES C CXX)
 

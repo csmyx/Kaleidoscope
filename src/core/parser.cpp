@@ -4,17 +4,40 @@
 #include "fmt/core.h"
 #include "global.h"
 #include "util.h"
+#include "llvm/ADT/APFloat.h"
+#include "llvm/ADT/STLExtras.h"
+#include "llvm/ADT/StringExtras.h"
+#include "llvm/IR/BasicBlock.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/LegacyPassManager.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Type.h"
+#include "llvm/IR/Verifier.h"
+#include "llvm/MC/TargetRegistry.h"
+#include "llvm/Support/FileSystem.h"
+#include "llvm/Support/TargetSelect.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/Target/TargetMachine.h"
+#include "llvm/Target/TargetOptions.h"
+#include "llvm/TargetParser/Host.h"
+#include <algorithm>
+#include <cassert>
+#include <cctype>
 #include <cstdio>
-#include <llvm-14/llvm/IR/LegacyPassManager.h>
-#include <llvm-14/llvm/MC/TargetRegistry.h>
-#include <llvm-14/llvm/Support/CodeGen.h>
-#include <llvm-14/llvm/Support/Host.h>
-#include <llvm-14/llvm/Support/raw_ostream.h>
-#include <llvm-14/llvm/Target/TargetOptions.h>
+#include <cstdlib>
+#include <map>
 #include <memory>
 #include <optional>
+#include <string>
 #include <system_error>
 #include <unistd.h>
+#include <utility>
+#include <vector>
 
 #define EXPECT_AND_EAT_TOKEN(tok)                                                                  \
     do {                                                                                           \
@@ -423,11 +446,10 @@ static void runTopExprFuncInJIT() {
 
     // Search the JIT for the __anon_expr symbol.
     auto ExprSymbol = ExitOnErr(TheJIT->lookup(TOP_EXPR_FUNC_NAME));
-    assert(ExprSymbol && "Function not found");
 
     // Get the symbol's address and cast it to the right type (takes no
     // arguments, return a double) so we can call it as a native function.
-    double (*FP)() = (double (*)())(intptr_t)ExprSymbol.getAddress();
+    double (*FP)() = ExprSymbol.toPtr<double (*)()>();
     [[maybe_unused]] auto res = FP();
 
     if constexpr (debug::show_jit_evaluate_result) {
@@ -488,7 +510,7 @@ void EmitObjectFile() {
     llvm::InitializeAllAsmPrinters();
 
     const std::string &target_triple = llvm::sys::getDefaultTargetTriple();
-    TheModule->setTargetTriple(target_triple);
+    TheModule->setTargetTriple(llvm::Triple(target_triple));
 
     std::string error;
     const llvm::Target *target = llvm::TargetRegistry::lookupTarget(target_triple, error);
@@ -501,31 +523,36 @@ void EmitObjectFile() {
         exit(1);
     }
 
-    auto cpu = "genric";
-    auto features = "";
-    llvm::TargetOptions options;
-    auto rm = llvm::Optional<llvm::Reloc::Model>();
-    auto the_target_machine =
-        target->createTargetMachine(target_triple, cpu, features, options, rm);
-    TheModule->setDataLayout(the_target_machine->createDataLayout());
+    auto CPU = "generic";
+    auto Features = "";
 
-    auto file_name = "output.o";
-    std::error_code ec;
-    llvm::raw_fd_ostream dest(file_name, ec, llvm::sys::fs::OF_None);
-    if (ec) {
-        llvm::errs() << "could not open file: " << ec.message();
+    llvm::TargetOptions opt;
+    auto TheTargetMachine = target->createTargetMachine(llvm::Triple(target_triple), CPU, Features,
+                                                        opt, llvm::Reloc::PIC_);
+
+    TheModule->setDataLayout(TheTargetMachine->createDataLayout());
+
+    auto Filename = "output.o";
+    std::error_code EC;
+    llvm::raw_fd_ostream dest(Filename, EC, llvm::sys::fs::OF_None);
+
+    if (EC) {
+        llvm::errs() << "Could not open file: " << EC.message();
         exit(1);
     }
 
     llvm::legacy::PassManager pass;
-    auto file_type = llvm::CGFT_ObjectFile;
-    if (the_target_machine->addPassesToEmitFile(pass, dest, nullptr, file_type)) {
-        llvm::errs() << "the target machine can't emit a file of this type";
+    auto FileType = llvm::CodeGenFileType::ObjectFile;
+
+    if (TheTargetMachine->addPassesToEmitFile(pass, dest, nullptr, FileType)) {
+        llvm::errs() << "TheTargetMachine can't emit a file of this type";
         exit(1);
     }
+
     pass.run(*TheModule);
     dest.flush();
-    llvm::outs() << "wrote to " << file_name << "\n";
+
+    llvm::outs() << "Wrote " << Filename << "\n";
 };
 
 static void initParse() {

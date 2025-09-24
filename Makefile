@@ -11,7 +11,6 @@ BUILD_TYPE=Debug
 # BUILD_TYPE=RelWithDebInfo
 config:
 	cmake -B build -S . \
-	-DCMAKE_CXX_CLANG_TIDY=clang-tidy \
 	-DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
 	-DCMAKE_TOOLCHAIN_FILE=${VCPKG_FILE}
 
@@ -23,8 +22,14 @@ build:
 build_lib:
 	cmake --build build --target kaleidoscope_lib
 
+
 build_main: build_lib
 	cmake --build build --target kaleidoscope_main
+
+# build_lib_verbose:
+# 	cd build/ && make kaleidoscope_lib VERBOSE=1
+# build_main_verbose:  build_lib
+# 	cd build/ && make kaleidoscope_main VERBOSE=1
 
 format:
 	cmake --build build --target format
@@ -37,7 +42,7 @@ rebuild: clean config build
 reconfig: clean config
 
 TEST_LIST = test_if test_for test_mandelbrot_set test_var_declar_assign
-
+TEST_DIR = test/
 # files of test:
 # input file -> test_name.sh, 
 # ll file -> test_name.ll, 
@@ -45,7 +50,7 @@ TEST_LIST = test_if test_for test_mandelbrot_set test_var_declar_assign
 test_all: build_main
 	@for test in $(TEST_LIST); do \
 		echo "Running test: $$test"; \
-		./build/src/kaleidoscope_main <"$$test.sh" 1>"$$test.txt" 2>"$$test.ll"; \
+		./build/src/kaleidoscope_main <"$(TEST_DIR)$$test.sh" 1>"$(TEST_DIR)$$test.txt" 2>"$(TEST_DIR)$$test.ll"; \
 		if [ $$? -eq 0 ]; then \
 			echo "Test $$test succeeded"; \
 		else \
@@ -60,4 +65,4 @@ $(TEST_LIST): %: build_main
 
 # 清理测试生成的文件
 clean_tests:
-	rm -f $(foreach test,$(TEST_LIST),$(test).txt $(test).ll)
+# 	rm -f $(foreach test,$(TEST_LIST),$(TEST_DIR)/$(test).txt $(TEST_DIR)/$(test).ll)
