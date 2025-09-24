@@ -10,4 +10,3 @@ test3:
 *
 *
 *
-Wrote output.o

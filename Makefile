@@ -65,4 +65,4 @@ $(TEST_LIST): %: build_main
 
 # 清理测试生成的文件
 clean_tests:
-# 	rm -f $(foreach test,$(TEST_LIST),$(TEST_DIR)/$(test).txt $(TEST_DIR)/$(test).ll)
+	rm -f $(foreach test,$(TEST_LIST),$(TEST_DIR)/$(test).txt $(TEST_DIR)/$(test).ll)

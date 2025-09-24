@@ -1,4 +1,5 @@
 #include "global.h"
+#include "util.h"
 
 int main() {
     InitializeNativeTraget();
@@ -11,7 +12,9 @@ int main() {
     // Run the main "interpreter loop" now.
     ParseMainLoop();
 
-    EmitObjectFile();
+    if (!debug::turn_on_jit) {
+        EmitObjectFile();
+    }
 
     return 0;
 }

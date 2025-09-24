@@ -435,7 +435,7 @@ void HandleExtern() {
     }
 }
 
-static void runTopExprFuncInJIT() {
+[[maybe_unused]] static void runTopExprFuncInJIT() {
     // Create a ResourceTracker to track JIT'd memory allocated to our
     // anonymous expression -- that way we can free it after executing.
     auto RT = TheJIT->getMainJITDylib().createResourceTracker();
@@ -551,8 +551,6 @@ void EmitObjectFile() {
 
     pass.run(*TheModule);
     dest.flush();
-
-    llvm::outs() << "Wrote " << Filename << "\n";
 };
 
 static void initParse() {

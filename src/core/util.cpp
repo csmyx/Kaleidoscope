@@ -36,7 +36,7 @@ extern "C" DLLEXPORT double printd(double X) {
     return 0;
 }
 
-/// printd - printf that takes a double prints it as "%f\n", returning 0.
+/// printI32 - printf that takes a double prints it as "%d\n", returning 0.
 extern "C" DLLEXPORT double printI32(double X) {
     fprintf(stdout, "%d", (int)X);
     return 0;
