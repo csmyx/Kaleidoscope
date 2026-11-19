@@ -12,9 +12,9 @@ add_library(${TARGET_LIB_NAME} SHARED ${SOURCES})
 target_include_directories(${TARGET_LIB_NAME} PUBLIC ${INCLUDE_DIR})
 target_link_libraries(${TARGET_LIB_NAME} PUBLIC fmt::fmt)
 
-set(LLVM_ROOT /home/hugo/local/llvm21_cxx)
+set(LLVM_ROOT /usr)
 set(LLVM_DIR "${LLVM_ROOT}/lib/cmake/llvm") # directory that includes LLVMConfig.cmake
-find_package(LLVM 21.1 REQUIRED CONFIG)
+find_package(LLVM 23.1 REQUIRED CONFIG)
 message(STATUS "LLVM_DIR: ${LLVM_DIR}")
 message(STATUS "Found LLVM Version: ${LLVM_PACKAGE_VERSION}")
 
@@ -52,6 +52,9 @@ llvm_config_exec(LLVM_SYS_LIBS_SPACES --system-libs)
 llvm_config_exec(LLVM_LIBS_SPACES --libs all)
 
 string(REPLACE " " ";" LLVM_CXXFLAGS "${LLVM_CXXFLAGS_SPACES}")
+# CMake manages the language standard via CMAKE_CXX_STANDARD; strip the
+# -std flag from llvm-config so it does not override the project's C++20.
+list(FILTER LLVM_CXXFLAGS EXCLUDE REGEX "^-std=")
 string(REPLACE " " ";" LLVM_LIB_DIRS "${LLVM_LIB_DIRS_SPACES}")
 string(REPLACE " " ";" LLVM_SYS_LIBS "${LLVM_SYS_LIBS_SPACES}")
 string(REPLACE " " ";" LLVM_LIBS "${LLVM_LIBS_SPACES}")
@@ -63,7 +66,9 @@ set(LLVM_LINK_OPTS ${LLVM_LIB_DIRS} ${LLVM_SYS_LIBS} ${LLVM_LIBS})
 message(STATUS "LLVM_LINK_OPTS: [${LLVM_LINK_OPTS}]")
 
 target_compile_options(${TARGET_LIB_NAME} PRIVATE ${LLVM_COMPILE_OPTS})
-target_link_options(${TARGET_LIB_NAME} PRIVATE ${LLVM_LINK_OPTS})
+# PUBLIC so consumers (kaleidoscope_main, tests) also link against LLVM:
+# they include LLVM headers via global.h and may need symbols from libLLVM.so.
+target_link_options(${TARGET_LIB_NAME} PUBLIC ${LLVM_LINK_OPTS})
 
 
 # Set -isystem, used by clangd to find the position of LLVM headers.

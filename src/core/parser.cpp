@@ -513,7 +513,7 @@ void EmitObjectFile() {
     TheModule->setTargetTriple(llvm::Triple(target_triple));
 
     std::string error;
-    const llvm::Target *target = llvm::TargetRegistry::lookupTarget(target_triple, error);
+    const llvm::Target *target = llvm::TargetRegistry::lookupTarget(llvm::Triple(target_triple), error);
 
     // Print an error and exit if we couldn't find the requested target.
     // This generally occurs if we've forgotten to initialise the

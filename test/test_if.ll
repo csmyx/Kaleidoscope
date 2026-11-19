@@ -127,6 +127,6 @@ entry:
 }
 define double @__anon_expr() {
 entry:
-  %calltmp = call double @f(double 0x41DFFFFFFFC00000)
+  %calltmp = call double @f(double f0x41DFFFFFFFC00000)
   ret double %calltmp
 }
