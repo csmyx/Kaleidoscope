@@ -343,15 +343,33 @@ entry:
 }
 define double @__anon_expr() {
 entry:
-  %unop = call double @unary-(double 2.000000e+00)
-  %unop1 = call double @unary-(double 1.000000e+00)
-  %calltmp = call double @mandel(double %unop, double %unop1, double 2.000000e-02, double 4.000000e-02)
+  %unop = call double @unary-(double 2.300000e+00)
+  %unop1 = call double @unary-(double 1.300000e+00)
+  %calltmp = call double @mandel(double %unop, double %unop1, double 5.000000e-02, double 7.000000e-02)
   ret double %calltmp
+
+entry2:                                           ; No predecessors!
+  %unop3 = call double @unary-(double 2.000000e+00)
+  %unop4 = call double @unary-(double 1.000000e+00)
+  %calltmp5 = call double @mandel(double %unop3, double %unop4, double 2.000000e-02, double 4.000000e-02)
+  ret double %calltmp5
 }
 define double @__anon_expr() {
 entry:
-  %unop = call double @unary-(double 9.000000e-01)
-  %unop1 = call double @unary-(double 1.400000e+00)
-  %calltmp = call double @mandel(double %unop, double %unop1, double 2.000000e-02, double 3.000000e-02)
+  %unop = call double @unary-(double 2.300000e+00)
+  %unop1 = call double @unary-(double 1.300000e+00)
+  %calltmp = call double @mandel(double %unop, double %unop1, double 5.000000e-02, double 7.000000e-02)
   ret double %calltmp
+
+entry2:                                           ; No predecessors!
+  %unop3 = call double @unary-(double 2.000000e+00)
+  %unop4 = call double @unary-(double 1.000000e+00)
+  %calltmp5 = call double @mandel(double %unop3, double %unop4, double 2.000000e-02, double 4.000000e-02)
+  ret double %calltmp5
+
+entry6:                                           ; No predecessors!
+  %unop7 = call double @unary-(double 9.000000e-01)
+  %unop8 = call double @unary-(double 1.400000e+00)
+  %calltmp9 = call double @mandel(double %unop7, double %unop8, double 2.000000e-02, double 3.000000e-02)
+  ret double %calltmp9
 }

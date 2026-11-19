@@ -11,3 +11,5 @@ target_link_libraries(${PROJECT_NAME}_test PRIVATE Catch2::Catch2WithMain)
 
 # 添加测试目标（可选，便于使用ctest命令运行）
 # add_test(NAME test COMMAND my_project_tests)
+
+add_subdirectory(test_emit_object)

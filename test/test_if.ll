@@ -77,56 +77,320 @@ entry:
 }
 define double @__anon_expr() {
 entry:
-  %calltmp = call double @f(double 1.000000e+00)
+  %calltmp = call double @testBegin(double 1.000000e+00)
   ret double %calltmp
+
+entry1:                                           ; No predecessors!
+  %calltmp2 = call double @f(double 1.000000e+00)
+  ret double %calltmp2
 }
 define double @__anon_expr() {
 entry:
-  %calltmp = call double @f(double 3.140000e+00)
+  %calltmp = call double @testBegin(double 1.000000e+00)
   ret double %calltmp
+
+entry1:                                           ; No predecessors!
+  %calltmp2 = call double @f(double 1.000000e+00)
+  ret double %calltmp2
+
+entry3:                                           ; No predecessors!
+  %calltmp4 = call double @f(double 3.140000e+00)
+  ret double %calltmp4
 }
 define double @__anon_expr() {
 entry:
-  %calltmp = call double @f(double 5.000000e+00)
+  %calltmp = call double @testBegin(double 1.000000e+00)
   ret double %calltmp
+
+entry1:                                           ; No predecessors!
+  %calltmp2 = call double @f(double 1.000000e+00)
+  ret double %calltmp2
+
+entry3:                                           ; No predecessors!
+  %calltmp4 = call double @f(double 3.140000e+00)
+  ret double %calltmp4
+
+entry5:                                           ; No predecessors!
+  %calltmp6 = call double @f(double 5.000000e+00)
+  ret double %calltmp6
 }
 define double @__anon_expr() {
 entry:
-  %calltmp = call double @testBegin(double 2.000000e+00)
+  %calltmp = call double @testBegin(double 1.000000e+00)
   ret double %calltmp
+
+entry1:                                           ; No predecessors!
+  %calltmp2 = call double @f(double 1.000000e+00)
+  ret double %calltmp2
+
+entry3:                                           ; No predecessors!
+  %calltmp4 = call double @f(double 3.140000e+00)
+  ret double %calltmp4
+
+entry5:                                           ; No predecessors!
+  %calltmp6 = call double @f(double 5.000000e+00)
+  ret double %calltmp6
+
+entry7:                                           ; No predecessors!
+  %calltmp8 = call double @testBegin(double 2.000000e+00)
+  ret double %calltmp8
 }
 define double @__anon_expr() {
 entry:
-  %calltmp = call double @f(double 1.000000e+01)
+  %calltmp = call double @testBegin(double 1.000000e+00)
   ret double %calltmp
+
+entry1:                                           ; No predecessors!
+  %calltmp2 = call double @f(double 1.000000e+00)
+  ret double %calltmp2
+
+entry3:                                           ; No predecessors!
+  %calltmp4 = call double @f(double 3.140000e+00)
+  ret double %calltmp4
+
+entry5:                                           ; No predecessors!
+  %calltmp6 = call double @f(double 5.000000e+00)
+  ret double %calltmp6
+
+entry7:                                           ; No predecessors!
+  %calltmp8 = call double @testBegin(double 2.000000e+00)
+  ret double %calltmp8
+
+entry9:                                           ; No predecessors!
+  %calltmp10 = call double @f(double 1.000000e+01)
+  ret double %calltmp10
 }
 define double @__anon_expr() {
 entry:
-  %calltmp = call double @f(double 4.200000e+01)
+  %calltmp = call double @testBegin(double 1.000000e+00)
   ret double %calltmp
+
+entry1:                                           ; No predecessors!
+  %calltmp2 = call double @f(double 1.000000e+00)
+  ret double %calltmp2
+
+entry3:                                           ; No predecessors!
+  %calltmp4 = call double @f(double 3.140000e+00)
+  ret double %calltmp4
+
+entry5:                                           ; No predecessors!
+  %calltmp6 = call double @f(double 5.000000e+00)
+  ret double %calltmp6
+
+entry7:                                           ; No predecessors!
+  %calltmp8 = call double @testBegin(double 2.000000e+00)
+  ret double %calltmp8
+
+entry9:                                           ; No predecessors!
+  %calltmp10 = call double @f(double 1.000000e+01)
+  ret double %calltmp10
+
+entry11:                                          ; No predecessors!
+  %calltmp12 = call double @f(double 4.200000e+01)
+  ret double %calltmp12
 }
 define double @__anon_expr() {
 entry:
-  %calltmp = call double @f(double 9.900000e+01)
+  %calltmp = call double @testBegin(double 1.000000e+00)
   ret double %calltmp
+
+entry1:                                           ; No predecessors!
+  %calltmp2 = call double @f(double 1.000000e+00)
+  ret double %calltmp2
+
+entry3:                                           ; No predecessors!
+  %calltmp4 = call double @f(double 3.140000e+00)
+  ret double %calltmp4
+
+entry5:                                           ; No predecessors!
+  %calltmp6 = call double @f(double 5.000000e+00)
+  ret double %calltmp6
+
+entry7:                                           ; No predecessors!
+  %calltmp8 = call double @testBegin(double 2.000000e+00)
+  ret double %calltmp8
+
+entry9:                                           ; No predecessors!
+  %calltmp10 = call double @f(double 1.000000e+01)
+  ret double %calltmp10
+
+entry11:                                          ; No predecessors!
+  %calltmp12 = call double @f(double 4.200000e+01)
+  ret double %calltmp12
+
+entry13:                                          ; No predecessors!
+  %calltmp14 = call double @f(double 9.900000e+01)
+  ret double %calltmp14
 }
 define double @__anon_expr() {
 entry:
-  %calltmp = call double @testBegin(double 3.000000e+00)
+  %calltmp = call double @testBegin(double 1.000000e+00)
   ret double %calltmp
+
+entry1:                                           ; No predecessors!
+  %calltmp2 = call double @f(double 1.000000e+00)
+  ret double %calltmp2
+
+entry3:                                           ; No predecessors!
+  %calltmp4 = call double @f(double 3.140000e+00)
+  ret double %calltmp4
+
+entry5:                                           ; No predecessors!
+  %calltmp6 = call double @f(double 5.000000e+00)
+  ret double %calltmp6
+
+entry7:                                           ; No predecessors!
+  %calltmp8 = call double @testBegin(double 2.000000e+00)
+  ret double %calltmp8
+
+entry9:                                           ; No predecessors!
+  %calltmp10 = call double @f(double 1.000000e+01)
+  ret double %calltmp10
+
+entry11:                                          ; No predecessors!
+  %calltmp12 = call double @f(double 4.200000e+01)
+  ret double %calltmp12
+
+entry13:                                          ; No predecessors!
+  %calltmp14 = call double @f(double 9.900000e+01)
+  ret double %calltmp14
+
+entry15:                                          ; No predecessors!
+  %calltmp16 = call double @testBegin(double 3.000000e+00)
+  ret double %calltmp16
 }
 define double @__anon_expr() {
 entry:
-  %calltmp = call double @f(double 1.000000e+02)
+  %calltmp = call double @testBegin(double 1.000000e+00)
   ret double %calltmp
+
+entry1:                                           ; No predecessors!
+  %calltmp2 = call double @f(double 1.000000e+00)
+  ret double %calltmp2
+
+entry3:                                           ; No predecessors!
+  %calltmp4 = call double @f(double 3.140000e+00)
+  ret double %calltmp4
+
+entry5:                                           ; No predecessors!
+  %calltmp6 = call double @f(double 5.000000e+00)
+  ret double %calltmp6
+
+entry7:                                           ; No predecessors!
+  %calltmp8 = call double @testBegin(double 2.000000e+00)
+  ret double %calltmp8
+
+entry9:                                           ; No predecessors!
+  %calltmp10 = call double @f(double 1.000000e+01)
+  ret double %calltmp10
+
+entry11:                                          ; No predecessors!
+  %calltmp12 = call double @f(double 4.200000e+01)
+  ret double %calltmp12
+
+entry13:                                          ; No predecessors!
+  %calltmp14 = call double @f(double 9.900000e+01)
+  ret double %calltmp14
+
+entry15:                                          ; No predecessors!
+  %calltmp16 = call double @testBegin(double 3.000000e+00)
+  ret double %calltmp16
+
+entry17:                                          ; No predecessors!
+  %calltmp18 = call double @f(double 1.000000e+02)
+  ret double %calltmp18
 }
 define double @__anon_expr() {
 entry:
-  %calltmp = call double @f(double 1.024000e+03)
+  %calltmp = call double @testBegin(double 1.000000e+00)
   ret double %calltmp
+
+entry1:                                           ; No predecessors!
+  %calltmp2 = call double @f(double 1.000000e+00)
+  ret double %calltmp2
+
+entry3:                                           ; No predecessors!
+  %calltmp4 = call double @f(double 3.140000e+00)
+  ret double %calltmp4
+
+entry5:                                           ; No predecessors!
+  %calltmp6 = call double @f(double 5.000000e+00)
+  ret double %calltmp6
+
+entry7:                                           ; No predecessors!
+  %calltmp8 = call double @testBegin(double 2.000000e+00)
+  ret double %calltmp8
+
+entry9:                                           ; No predecessors!
+  %calltmp10 = call double @f(double 1.000000e+01)
+  ret double %calltmp10
+
+entry11:                                          ; No predecessors!
+  %calltmp12 = call double @f(double 4.200000e+01)
+  ret double %calltmp12
+
+entry13:                                          ; No predecessors!
+  %calltmp14 = call double @f(double 9.900000e+01)
+  ret double %calltmp14
+
+entry15:                                          ; No predecessors!
+  %calltmp16 = call double @testBegin(double 3.000000e+00)
+  ret double %calltmp16
+
+entry17:                                          ; No predecessors!
+  %calltmp18 = call double @f(double 1.000000e+02)
+  ret double %calltmp18
+
+entry19:                                          ; No predecessors!
+  %calltmp20 = call double @f(double 1.024000e+03)
+  ret double %calltmp20
 }
 define double @__anon_expr() {
 entry:
-  %calltmp = call double @f(double f0x41DFFFFFFFC00000)
+  %calltmp = call double @testBegin(double 1.000000e+00)
   ret double %calltmp
+
+entry1:                                           ; No predecessors!
+  %calltmp2 = call double @f(double 1.000000e+00)
+  ret double %calltmp2
+
+entry3:                                           ; No predecessors!
+  %calltmp4 = call double @f(double 3.140000e+00)
+  ret double %calltmp4
+
+entry5:                                           ; No predecessors!
+  %calltmp6 = call double @f(double 5.000000e+00)
+  ret double %calltmp6
+
+entry7:                                           ; No predecessors!
+  %calltmp8 = call double @testBegin(double 2.000000e+00)
+  ret double %calltmp8
+
+entry9:                                           ; No predecessors!
+  %calltmp10 = call double @f(double 1.000000e+01)
+  ret double %calltmp10
+
+entry11:                                          ; No predecessors!
+  %calltmp12 = call double @f(double 4.200000e+01)
+  ret double %calltmp12
+
+entry13:                                          ; No predecessors!
+  %calltmp14 = call double @f(double 9.900000e+01)
+  ret double %calltmp14
+
+entry15:                                          ; No predecessors!
+  %calltmp16 = call double @testBegin(double 3.000000e+00)
+  ret double %calltmp16
+
+entry17:                                          ; No predecessors!
+  %calltmp18 = call double @f(double 1.000000e+02)
+  ret double %calltmp18
+
+entry19:                                          ; No predecessors!
+  %calltmp20 = call double @f(double 1.024000e+03)
+  ret double %calltmp20
+
+entry21:                                          ; No predecessors!
+  %calltmp22 = call double @f(double f0x41DFFFFFFFC00000)
+  ret double %calltmp22
 }

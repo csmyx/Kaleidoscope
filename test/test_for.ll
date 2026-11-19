@@ -39,144 +39,642 @@ entry:
 define double @__anon_expr() {
 entry:
   %i = alloca double, align 8
+  %calltmp = call double @testBegin(double 1.000000e+00)
+  ret double %calltmp
+
+entry1:                                           ; No predecessors!
   store double 0.000000e+00, ptr %i, align 8
   br label %forentry
 
-forentry:                                         ; preds = %forbody, %entry
-  %i1 = load double, ptr %i, align 8
-  %lttmp = fcmp ult double %i1, 5.000000e+00
+forentry:                                         ; preds = %forbody, %entry1
+  %i2 = load double, ptr %i, align 8
+  %lttmp = fcmp ult double %i2, 5.000000e+00
   %booltmp = uitofp i1 %lttmp to double
   %forcond = fcmp one double %booltmp, 0.000000e+00
   br i1 %forcond, label %forbody, label %forcont
 
 forbody:                                          ; preds = %forentry
-  %i2 = load double, ptr %i, align 8
-  %calltmp = call double @printI32(double %i2)
-  %calltmp3 = call double @putchard(double 1.000000e+01)
-  %binop = call double @"binary:"(double %calltmp, double %calltmp3)
-  %i4 = load double, ptr %i, align 8
-  %nextvar = fadd double %i4, 1.000000e+00
+  %i3 = load double, ptr %i, align 8
+  %calltmp4 = call double @printI32(double %i3)
+  %calltmp5 = call double @putchard(double 1.000000e+01)
+  %binop = call double @"binary:"(double %calltmp4, double %calltmp5)
+  %i6 = load double, ptr %i, align 8
+  %nextvar = fadd double %i6, 1.000000e+00
   store double %nextvar, ptr %i, align 8
   br label %forentry
 
 forcont:                                          ; preds = %forentry
   ret double 0.000000e+00
-}
-define double @__anon_expr() {
-entry:
-  %calltmp = call double @testBegin(double 2.000000e+00)
-  ret double %calltmp
 }
 define double @__anon_expr() {
 entry:
   %i = alloca double, align 8
+  %calltmp = call double @testBegin(double 1.000000e+00)
+  ret double %calltmp
+
+entry1:                                           ; No predecessors!
   store double 0.000000e+00, ptr %i, align 8
   br label %forentry
 
-forentry:                                         ; preds = %forbody, %entry
-  %i1 = load double, ptr %i, align 8
-  %lttmp = fcmp ult double %i1, 5.000000e+00
+forentry:                                         ; preds = %forbody, %entry1
+  %i2 = load double, ptr %i, align 8
+  %lttmp = fcmp ult double %i2, 5.000000e+00
   %booltmp = uitofp i1 %lttmp to double
   %forcond = fcmp one double %booltmp, 0.000000e+00
   br i1 %forcond, label %forbody, label %forcont
 
 forbody:                                          ; preds = %forentry
-  %i2 = load double, ptr %i, align 8
-  %calltmp = call double @printI32(double %i2)
-  %calltmp3 = call double @putchard(double 1.000000e+01)
-  %binop = call double @"binary:"(double %calltmp, double %calltmp3)
-  %i4 = load double, ptr %i, align 8
-  %nextvar = fadd double %i4, 2.000000e+00
+  %i3 = load double, ptr %i, align 8
+  %calltmp4 = call double @printI32(double %i3)
+  %calltmp5 = call double @putchard(double 1.000000e+01)
+  %binop = call double @"binary:"(double %calltmp4, double %calltmp5)
+  %i6 = load double, ptr %i, align 8
+  %nextvar = fadd double %i6, 1.000000e+00
   store double %nextvar, ptr %i, align 8
   br label %forentry
 
 forcont:                                          ; preds = %forentry
   ret double 0.000000e+00
+
+entry7:                                           ; No predecessors!
+  %calltmp8 = call double @testBegin(double 2.000000e+00)
+  ret double %calltmp8
 }
 define double @__anon_expr() {
 entry:
-  %calltmp = call double @testBegin(double 3.000000e+00)
-  ret double %calltmp
-}
-define double @__anon_expr() {
-entry:
+  %i10 = alloca double, align 8
   %i = alloca double, align 8
+  %calltmp = call double @testBegin(double 1.000000e+00)
+  ret double %calltmp
+
+entry1:                                           ; No predecessors!
   store double 0.000000e+00, ptr %i, align 8
   br label %forentry
 
-forentry:                                         ; preds = %forbody, %entry
-  %i1 = load double, ptr %i, align 8
-  %lttmp = fcmp ult double %i1, 0.000000e+00
+forentry:                                         ; preds = %forbody, %entry1
+  %i2 = load double, ptr %i, align 8
+  %lttmp = fcmp ult double %i2, 5.000000e+00
   %booltmp = uitofp i1 %lttmp to double
   %forcond = fcmp one double %booltmp, 0.000000e+00
   br i1 %forcond, label %forbody, label %forcont
 
 forbody:                                          ; preds = %forentry
-  %i2 = load double, ptr %i, align 8
-  %calltmp = call double @printI32(double %i2)
-  %calltmp3 = call double @putchard(double 1.000000e+01)
-  %binop = call double @"binary:"(double %calltmp, double %calltmp3)
-  %i4 = load double, ptr %i, align 8
-  %nextvar = fadd double %i4, 2.000000e+00
+  %i3 = load double, ptr %i, align 8
+  %calltmp4 = call double @printI32(double %i3)
+  %calltmp5 = call double @putchard(double 1.000000e+01)
+  %binop = call double @"binary:"(double %calltmp4, double %calltmp5)
+  %i6 = load double, ptr %i, align 8
+  %nextvar = fadd double %i6, 1.000000e+00
   store double %nextvar, ptr %i, align 8
   br label %forentry
 
 forcont:                                          ; preds = %forentry
   ret double 0.000000e+00
+
+entry7:                                           ; No predecessors!
+  %calltmp8 = call double @testBegin(double 2.000000e+00)
+  ret double %calltmp8
+
+entry9:                                           ; No predecessors!
+  store double 0.000000e+00, ptr %i10, align 8
+  br label %forentry11
+
+forentry11:                                       ; preds = %forbody16, %entry9
+  %i12 = load double, ptr %i10, align 8
+  %lttmp13 = fcmp ult double %i12, 5.000000e+00
+  %booltmp14 = uitofp i1 %lttmp13 to double
+  %forcond15 = fcmp one double %booltmp14, 0.000000e+00
+  br i1 %forcond15, label %forbody16, label %forcont17
+
+forbody16:                                        ; preds = %forentry11
+  %i18 = load double, ptr %i10, align 8
+  %calltmp19 = call double @printI32(double %i18)
+  %calltmp20 = call double @putchard(double 1.000000e+01)
+  %binop21 = call double @"binary:"(double %calltmp19, double %calltmp20)
+  %i22 = load double, ptr %i10, align 8
+  %nextvar23 = fadd double %i22, 2.000000e+00
+  store double %nextvar23, ptr %i10, align 8
+  br label %forentry11
+
+forcont17:                                        ; preds = %forentry11
+  ret double 0.000000e+00
 }
 define double @__anon_expr() {
 entry:
-  %calltmp = call double @testBegin(double 4.000000e+00)
+  %i10 = alloca double, align 8
+  %i = alloca double, align 8
+  %calltmp = call double @testBegin(double 1.000000e+00)
   ret double %calltmp
+
+entry1:                                           ; No predecessors!
+  store double 0.000000e+00, ptr %i, align 8
+  br label %forentry
+
+forentry:                                         ; preds = %forbody, %entry1
+  %i2 = load double, ptr %i, align 8
+  %lttmp = fcmp ult double %i2, 5.000000e+00
+  %booltmp = uitofp i1 %lttmp to double
+  %forcond = fcmp one double %booltmp, 0.000000e+00
+  br i1 %forcond, label %forbody, label %forcont
+
+forbody:                                          ; preds = %forentry
+  %i3 = load double, ptr %i, align 8
+  %calltmp4 = call double @printI32(double %i3)
+  %calltmp5 = call double @putchard(double 1.000000e+01)
+  %binop = call double @"binary:"(double %calltmp4, double %calltmp5)
+  %i6 = load double, ptr %i, align 8
+  %nextvar = fadd double %i6, 1.000000e+00
+  store double %nextvar, ptr %i, align 8
+  br label %forentry
+
+forcont:                                          ; preds = %forentry
+  ret double 0.000000e+00
+
+entry7:                                           ; No predecessors!
+  %calltmp8 = call double @testBegin(double 2.000000e+00)
+  ret double %calltmp8
+
+entry9:                                           ; No predecessors!
+  store double 0.000000e+00, ptr %i10, align 8
+  br label %forentry11
+
+forentry11:                                       ; preds = %forbody16, %entry9
+  %i12 = load double, ptr %i10, align 8
+  %lttmp13 = fcmp ult double %i12, 5.000000e+00
+  %booltmp14 = uitofp i1 %lttmp13 to double
+  %forcond15 = fcmp one double %booltmp14, 0.000000e+00
+  br i1 %forcond15, label %forbody16, label %forcont17
+
+forbody16:                                        ; preds = %forentry11
+  %i18 = load double, ptr %i10, align 8
+  %calltmp19 = call double @printI32(double %i18)
+  %calltmp20 = call double @putchard(double 1.000000e+01)
+  %binop21 = call double @"binary:"(double %calltmp19, double %calltmp20)
+  %i22 = load double, ptr %i10, align 8
+  %nextvar23 = fadd double %i22, 2.000000e+00
+  store double %nextvar23, ptr %i10, align 8
+  br label %forentry11
+
+forcont17:                                        ; preds = %forentry11
+  ret double 0.000000e+00
+
+entry24:                                          ; No predecessors!
+  %calltmp25 = call double @testBegin(double 3.000000e+00)
+  ret double %calltmp25
+}
+define double @__anon_expr() {
+entry:
+  %i27 = alloca double, align 8
+  %i10 = alloca double, align 8
+  %i = alloca double, align 8
+  %calltmp = call double @testBegin(double 1.000000e+00)
+  ret double %calltmp
+
+entry1:                                           ; No predecessors!
+  store double 0.000000e+00, ptr %i, align 8
+  br label %forentry
+
+forentry:                                         ; preds = %forbody, %entry1
+  %i2 = load double, ptr %i, align 8
+  %lttmp = fcmp ult double %i2, 5.000000e+00
+  %booltmp = uitofp i1 %lttmp to double
+  %forcond = fcmp one double %booltmp, 0.000000e+00
+  br i1 %forcond, label %forbody, label %forcont
+
+forbody:                                          ; preds = %forentry
+  %i3 = load double, ptr %i, align 8
+  %calltmp4 = call double @printI32(double %i3)
+  %calltmp5 = call double @putchard(double 1.000000e+01)
+  %binop = call double @"binary:"(double %calltmp4, double %calltmp5)
+  %i6 = load double, ptr %i, align 8
+  %nextvar = fadd double %i6, 1.000000e+00
+  store double %nextvar, ptr %i, align 8
+  br label %forentry
+
+forcont:                                          ; preds = %forentry
+  ret double 0.000000e+00
+
+entry7:                                           ; No predecessors!
+  %calltmp8 = call double @testBegin(double 2.000000e+00)
+  ret double %calltmp8
+
+entry9:                                           ; No predecessors!
+  store double 0.000000e+00, ptr %i10, align 8
+  br label %forentry11
+
+forentry11:                                       ; preds = %forbody16, %entry9
+  %i12 = load double, ptr %i10, align 8
+  %lttmp13 = fcmp ult double %i12, 5.000000e+00
+  %booltmp14 = uitofp i1 %lttmp13 to double
+  %forcond15 = fcmp one double %booltmp14, 0.000000e+00
+  br i1 %forcond15, label %forbody16, label %forcont17
+
+forbody16:                                        ; preds = %forentry11
+  %i18 = load double, ptr %i10, align 8
+  %calltmp19 = call double @printI32(double %i18)
+  %calltmp20 = call double @putchard(double 1.000000e+01)
+  %binop21 = call double @"binary:"(double %calltmp19, double %calltmp20)
+  %i22 = load double, ptr %i10, align 8
+  %nextvar23 = fadd double %i22, 2.000000e+00
+  store double %nextvar23, ptr %i10, align 8
+  br label %forentry11
+
+forcont17:                                        ; preds = %forentry11
+  ret double 0.000000e+00
+
+entry24:                                          ; No predecessors!
+  %calltmp25 = call double @testBegin(double 3.000000e+00)
+  ret double %calltmp25
+
+entry26:                                          ; No predecessors!
+  store double 0.000000e+00, ptr %i27, align 8
+  br label %forentry28
+
+forentry28:                                       ; preds = %forbody33, %entry26
+  %i29 = load double, ptr %i27, align 8
+  %lttmp30 = fcmp ult double %i29, 0.000000e+00
+  %booltmp31 = uitofp i1 %lttmp30 to double
+  %forcond32 = fcmp one double %booltmp31, 0.000000e+00
+  br i1 %forcond32, label %forbody33, label %forcont34
+
+forbody33:                                        ; preds = %forentry28
+  %i35 = load double, ptr %i27, align 8
+  %calltmp36 = call double @printI32(double %i35)
+  %calltmp37 = call double @putchard(double 1.000000e+01)
+  %binop38 = call double @"binary:"(double %calltmp36, double %calltmp37)
+  %i39 = load double, ptr %i27, align 8
+  %nextvar40 = fadd double %i39, 2.000000e+00
+  store double %nextvar40, ptr %i27, align 8
+  br label %forentry28
+
+forcont34:                                        ; preds = %forentry28
+  ret double 0.000000e+00
+}
+define double @__anon_expr() {
+entry:
+  %i27 = alloca double, align 8
+  %i10 = alloca double, align 8
+  %i = alloca double, align 8
+  %calltmp = call double @testBegin(double 1.000000e+00)
+  ret double %calltmp
+
+entry1:                                           ; No predecessors!
+  store double 0.000000e+00, ptr %i, align 8
+  br label %forentry
+
+forentry:                                         ; preds = %forbody, %entry1
+  %i2 = load double, ptr %i, align 8
+  %lttmp = fcmp ult double %i2, 5.000000e+00
+  %booltmp = uitofp i1 %lttmp to double
+  %forcond = fcmp one double %booltmp, 0.000000e+00
+  br i1 %forcond, label %forbody, label %forcont
+
+forbody:                                          ; preds = %forentry
+  %i3 = load double, ptr %i, align 8
+  %calltmp4 = call double @printI32(double %i3)
+  %calltmp5 = call double @putchard(double 1.000000e+01)
+  %binop = call double @"binary:"(double %calltmp4, double %calltmp5)
+  %i6 = load double, ptr %i, align 8
+  %nextvar = fadd double %i6, 1.000000e+00
+  store double %nextvar, ptr %i, align 8
+  br label %forentry
+
+forcont:                                          ; preds = %forentry
+  ret double 0.000000e+00
+
+entry7:                                           ; No predecessors!
+  %calltmp8 = call double @testBegin(double 2.000000e+00)
+  ret double %calltmp8
+
+entry9:                                           ; No predecessors!
+  store double 0.000000e+00, ptr %i10, align 8
+  br label %forentry11
+
+forentry11:                                       ; preds = %forbody16, %entry9
+  %i12 = load double, ptr %i10, align 8
+  %lttmp13 = fcmp ult double %i12, 5.000000e+00
+  %booltmp14 = uitofp i1 %lttmp13 to double
+  %forcond15 = fcmp one double %booltmp14, 0.000000e+00
+  br i1 %forcond15, label %forbody16, label %forcont17
+
+forbody16:                                        ; preds = %forentry11
+  %i18 = load double, ptr %i10, align 8
+  %calltmp19 = call double @printI32(double %i18)
+  %calltmp20 = call double @putchard(double 1.000000e+01)
+  %binop21 = call double @"binary:"(double %calltmp19, double %calltmp20)
+  %i22 = load double, ptr %i10, align 8
+  %nextvar23 = fadd double %i22, 2.000000e+00
+  store double %nextvar23, ptr %i10, align 8
+  br label %forentry11
+
+forcont17:                                        ; preds = %forentry11
+  ret double 0.000000e+00
+
+entry24:                                          ; No predecessors!
+  %calltmp25 = call double @testBegin(double 3.000000e+00)
+  ret double %calltmp25
+
+entry26:                                          ; No predecessors!
+  store double 0.000000e+00, ptr %i27, align 8
+  br label %forentry28
+
+forentry28:                                       ; preds = %forbody33, %entry26
+  %i29 = load double, ptr %i27, align 8
+  %lttmp30 = fcmp ult double %i29, 0.000000e+00
+  %booltmp31 = uitofp i1 %lttmp30 to double
+  %forcond32 = fcmp one double %booltmp31, 0.000000e+00
+  br i1 %forcond32, label %forbody33, label %forcont34
+
+forbody33:                                        ; preds = %forentry28
+  %i35 = load double, ptr %i27, align 8
+  %calltmp36 = call double @printI32(double %i35)
+  %calltmp37 = call double @putchard(double 1.000000e+01)
+  %binop38 = call double @"binary:"(double %calltmp36, double %calltmp37)
+  %i39 = load double, ptr %i27, align 8
+  %nextvar40 = fadd double %i39, 2.000000e+00
+  store double %nextvar40, ptr %i27, align 8
+  br label %forentry28
+
+forcont34:                                        ; preds = %forentry28
+  ret double 0.000000e+00
+
+entry41:                                          ; No predecessors!
+  %calltmp42 = call double @testBegin(double 4.000000e+00)
+  ret double %calltmp42
 }
 define double @__anon_expr() {
 entry:
   %j = alloca double, align 8
+  %i44 = alloca double, align 8
+  %i27 = alloca double, align 8
+  %i10 = alloca double, align 8
   %i = alloca double, align 8
+  %calltmp = call double @testBegin(double 1.000000e+00)
+  ret double %calltmp
+
+entry1:                                           ; No predecessors!
   store double 0.000000e+00, ptr %i, align 8
   br label %forentry
 
-forentry:                                         ; preds = %forcont9, %entry
-  %i1 = load double, ptr %i, align 8
-  %lttmp = fcmp ult double %i1, 1.000000e+01
+forentry:                                         ; preds = %forbody, %entry1
+  %i2 = load double, ptr %i, align 8
+  %lttmp = fcmp ult double %i2, 5.000000e+00
   %booltmp = uitofp i1 %lttmp to double
   %forcond = fcmp one double %booltmp, 0.000000e+00
   br i1 %forcond, label %forbody, label %forcont
 
 forbody:                                          ; preds = %forentry
-  %i2 = load double, ptr %i, align 8
-  store double %i2, ptr %j, align 8
-  br label %forentry3
+  %i3 = load double, ptr %i, align 8
+  %calltmp4 = call double @printI32(double %i3)
+  %calltmp5 = call double @putchard(double 1.000000e+01)
+  %binop = call double @"binary:"(double %calltmp4, double %calltmp5)
+  %i6 = load double, ptr %i, align 8
+  %nextvar = fadd double %i6, 1.000000e+00
+  store double %nextvar, ptr %i, align 8
+  br label %forentry
 
 forcont:                                          ; preds = %forentry
   ret double 0.000000e+00
 
-forentry3:                                        ; preds = %forbody8, %forbody
-  %j4 = load double, ptr %j, align 8
-  %lttmp5 = fcmp ult double %j4, 1.000000e+01
-  %booltmp6 = uitofp i1 %lttmp5 to double
-  %forcond7 = fcmp one double %booltmp6, 0.000000e+00
-  br i1 %forcond7, label %forbody8, label %forcont9
+entry7:                                           ; No predecessors!
+  %calltmp8 = call double @testBegin(double 2.000000e+00)
+  ret double %calltmp8
 
-forbody8:                                         ; preds = %forentry3
-  %calltmp = call double @putchard(double 4.200000e+01)
-  %j10 = load double, ptr %j, align 8
-  %nextvar = fadd double %j10, 1.000000e+00
-  store double %nextvar, ptr %j, align 8
-  br label %forentry3
+entry9:                                           ; No predecessors!
+  store double 0.000000e+00, ptr %i10, align 8
+  br label %forentry11
 
-forcont9:                                         ; preds = %forentry3
-  %calltmp11 = call double @putchard(double 1.000000e+01)
-  %binop = call double @"binary:"(double 0.000000e+00, double %calltmp11)
-  %i12 = load double, ptr %i, align 8
-  %nextvar13 = fadd double %i12, 1.000000e+00
-  store double %nextvar13, ptr %i, align 8
-  br label %forentry
+forentry11:                                       ; preds = %forbody16, %entry9
+  %i12 = load double, ptr %i10, align 8
+  %lttmp13 = fcmp ult double %i12, 5.000000e+00
+  %booltmp14 = uitofp i1 %lttmp13 to double
+  %forcond15 = fcmp one double %booltmp14, 0.000000e+00
+  br i1 %forcond15, label %forbody16, label %forcont17
+
+forbody16:                                        ; preds = %forentry11
+  %i18 = load double, ptr %i10, align 8
+  %calltmp19 = call double @printI32(double %i18)
+  %calltmp20 = call double @putchard(double 1.000000e+01)
+  %binop21 = call double @"binary:"(double %calltmp19, double %calltmp20)
+  %i22 = load double, ptr %i10, align 8
+  %nextvar23 = fadd double %i22, 2.000000e+00
+  store double %nextvar23, ptr %i10, align 8
+  br label %forentry11
+
+forcont17:                                        ; preds = %forentry11
+  ret double 0.000000e+00
+
+entry24:                                          ; No predecessors!
+  %calltmp25 = call double @testBegin(double 3.000000e+00)
+  ret double %calltmp25
+
+entry26:                                          ; No predecessors!
+  store double 0.000000e+00, ptr %i27, align 8
+  br label %forentry28
+
+forentry28:                                       ; preds = %forbody33, %entry26
+  %i29 = load double, ptr %i27, align 8
+  %lttmp30 = fcmp ult double %i29, 0.000000e+00
+  %booltmp31 = uitofp i1 %lttmp30 to double
+  %forcond32 = fcmp one double %booltmp31, 0.000000e+00
+  br i1 %forcond32, label %forbody33, label %forcont34
+
+forbody33:                                        ; preds = %forentry28
+  %i35 = load double, ptr %i27, align 8
+  %calltmp36 = call double @printI32(double %i35)
+  %calltmp37 = call double @putchard(double 1.000000e+01)
+  %binop38 = call double @"binary:"(double %calltmp36, double %calltmp37)
+  %i39 = load double, ptr %i27, align 8
+  %nextvar40 = fadd double %i39, 2.000000e+00
+  store double %nextvar40, ptr %i27, align 8
+  br label %forentry28
+
+forcont34:                                        ; preds = %forentry28
+  ret double 0.000000e+00
+
+entry41:                                          ; No predecessors!
+  %calltmp42 = call double @testBegin(double 4.000000e+00)
+  ret double %calltmp42
+
+entry43:                                          ; No predecessors!
+  store double 0.000000e+00, ptr %i44, align 8
+  br label %forentry45
+
+forentry45:                                       ; preds = %forcont59, %entry43
+  %i46 = load double, ptr %i44, align 8
+  %lttmp47 = fcmp ult double %i46, 1.000000e+01
+  %booltmp48 = uitofp i1 %lttmp47 to double
+  %forcond49 = fcmp one double %booltmp48, 0.000000e+00
+  br i1 %forcond49, label %forbody50, label %forcont51
+
+forbody50:                                        ; preds = %forentry45
+  %i52 = load double, ptr %i44, align 8
+  store double %i52, ptr %j, align 8
+  br label %forentry53
+
+forcont51:                                        ; preds = %forentry45
+  ret double 0.000000e+00
+
+forentry53:                                       ; preds = %forbody58, %forbody50
+  %j54 = load double, ptr %j, align 8
+  %lttmp55 = fcmp ult double %j54, 1.000000e+01
+  %booltmp56 = uitofp i1 %lttmp55 to double
+  %forcond57 = fcmp one double %booltmp56, 0.000000e+00
+  br i1 %forcond57, label %forbody58, label %forcont59
+
+forbody58:                                        ; preds = %forentry53
+  %calltmp60 = call double @putchard(double 4.200000e+01)
+  %j61 = load double, ptr %j, align 8
+  %nextvar62 = fadd double %j61, 1.000000e+00
+  store double %nextvar62, ptr %j, align 8
+  br label %forentry53
+
+forcont59:                                        ; preds = %forentry53
+  %calltmp63 = call double @putchard(double 1.000000e+01)
+  %binop64 = call double @"binary:"(double 0.000000e+00, double %calltmp63)
+  %i65 = load double, ptr %i44, align 8
+  %nextvar66 = fadd double %i65, 1.000000e+00
+  store double %nextvar66, ptr %i44, align 8
+  br label %forentry45
 }
 define double @__anon_expr() {
 entry:
-  %calltmp = call double @testBegin(double 5.000000e+00)
+  %j = alloca double, align 8
+  %i44 = alloca double, align 8
+  %i27 = alloca double, align 8
+  %i10 = alloca double, align 8
+  %i = alloca double, align 8
+  %calltmp = call double @testBegin(double 1.000000e+00)
   ret double %calltmp
+
+entry1:                                           ; No predecessors!
+  store double 0.000000e+00, ptr %i, align 8
+  br label %forentry
+
+forentry:                                         ; preds = %forbody, %entry1
+  %i2 = load double, ptr %i, align 8
+  %lttmp = fcmp ult double %i2, 5.000000e+00
+  %booltmp = uitofp i1 %lttmp to double
+  %forcond = fcmp one double %booltmp, 0.000000e+00
+  br i1 %forcond, label %forbody, label %forcont
+
+forbody:                                          ; preds = %forentry
+  %i3 = load double, ptr %i, align 8
+  %calltmp4 = call double @printI32(double %i3)
+  %calltmp5 = call double @putchard(double 1.000000e+01)
+  %binop = call double @"binary:"(double %calltmp4, double %calltmp5)
+  %i6 = load double, ptr %i, align 8
+  %nextvar = fadd double %i6, 1.000000e+00
+  store double %nextvar, ptr %i, align 8
+  br label %forentry
+
+forcont:                                          ; preds = %forentry
+  ret double 0.000000e+00
+
+entry7:                                           ; No predecessors!
+  %calltmp8 = call double @testBegin(double 2.000000e+00)
+  ret double %calltmp8
+
+entry9:                                           ; No predecessors!
+  store double 0.000000e+00, ptr %i10, align 8
+  br label %forentry11
+
+forentry11:                                       ; preds = %forbody16, %entry9
+  %i12 = load double, ptr %i10, align 8
+  %lttmp13 = fcmp ult double %i12, 5.000000e+00
+  %booltmp14 = uitofp i1 %lttmp13 to double
+  %forcond15 = fcmp one double %booltmp14, 0.000000e+00
+  br i1 %forcond15, label %forbody16, label %forcont17
+
+forbody16:                                        ; preds = %forentry11
+  %i18 = load double, ptr %i10, align 8
+  %calltmp19 = call double @printI32(double %i18)
+  %calltmp20 = call double @putchard(double 1.000000e+01)
+  %binop21 = call double @"binary:"(double %calltmp19, double %calltmp20)
+  %i22 = load double, ptr %i10, align 8
+  %nextvar23 = fadd double %i22, 2.000000e+00
+  store double %nextvar23, ptr %i10, align 8
+  br label %forentry11
+
+forcont17:                                        ; preds = %forentry11
+  ret double 0.000000e+00
+
+entry24:                                          ; No predecessors!
+  %calltmp25 = call double @testBegin(double 3.000000e+00)
+  ret double %calltmp25
+
+entry26:                                          ; No predecessors!
+  store double 0.000000e+00, ptr %i27, align 8
+  br label %forentry28
+
+forentry28:                                       ; preds = %forbody33, %entry26
+  %i29 = load double, ptr %i27, align 8
+  %lttmp30 = fcmp ult double %i29, 0.000000e+00
+  %booltmp31 = uitofp i1 %lttmp30 to double
+  %forcond32 = fcmp one double %booltmp31, 0.000000e+00
+  br i1 %forcond32, label %forbody33, label %forcont34
+
+forbody33:                                        ; preds = %forentry28
+  %i35 = load double, ptr %i27, align 8
+  %calltmp36 = call double @printI32(double %i35)
+  %calltmp37 = call double @putchard(double 1.000000e+01)
+  %binop38 = call double @"binary:"(double %calltmp36, double %calltmp37)
+  %i39 = load double, ptr %i27, align 8
+  %nextvar40 = fadd double %i39, 2.000000e+00
+  store double %nextvar40, ptr %i27, align 8
+  br label %forentry28
+
+forcont34:                                        ; preds = %forentry28
+  ret double 0.000000e+00
+
+entry41:                                          ; No predecessors!
+  %calltmp42 = call double @testBegin(double 4.000000e+00)
+  ret double %calltmp42
+
+entry43:                                          ; No predecessors!
+  store double 0.000000e+00, ptr %i44, align 8
+  br label %forentry45
+
+forentry45:                                       ; preds = %forcont59, %entry43
+  %i46 = load double, ptr %i44, align 8
+  %lttmp47 = fcmp ult double %i46, 1.000000e+01
+  %booltmp48 = uitofp i1 %lttmp47 to double
+  %forcond49 = fcmp one double %booltmp48, 0.000000e+00
+  br i1 %forcond49, label %forbody50, label %forcont51
+
+forbody50:                                        ; preds = %forentry45
+  %i52 = load double, ptr %i44, align 8
+  store double %i52, ptr %j, align 8
+  br label %forentry53
+
+forcont51:                                        ; preds = %forentry45
+  ret double 0.000000e+00
+
+forentry53:                                       ; preds = %forbody58, %forbody50
+  %j54 = load double, ptr %j, align 8
+  %lttmp55 = fcmp ult double %j54, 1.000000e+01
+  %booltmp56 = uitofp i1 %lttmp55 to double
+  %forcond57 = fcmp one double %booltmp56, 0.000000e+00
+  br i1 %forcond57, label %forbody58, label %forcont59
+
+forbody58:                                        ; preds = %forentry53
+  %calltmp60 = call double @putchard(double 4.200000e+01)
+  %j61 = load double, ptr %j, align 8
+  %nextvar62 = fadd double %j61, 1.000000e+00
+  store double %nextvar62, ptr %j, align 8
+  br label %forentry53
+
+forcont59:                                        ; preds = %forentry53
+  %calltmp63 = call double @putchard(double 1.000000e+01)
+  %binop64 = call double @"binary:"(double 0.000000e+00, double %calltmp63)
+  %i65 = load double, ptr %i44, align 8
+  %nextvar66 = fadd double %i65, 1.000000e+00
+  store double %nextvar66, ptr %i44, align 8
+  br label %forentry45
+
+entry67:                                          ; No predecessors!
+  %calltmp68 = call double @testBegin(double 5.000000e+00)
+  ret double %calltmp68
 }
 define double @circle(double %r) {
 entry:
@@ -265,6 +763,144 @@ if.cont:                                          ; preds = %if.else, %if.then
 }
 define double @__anon_expr() {
 entry:
-  %calltmp = call double @circle(double 1.000000e+01)
+  %j = alloca double, align 8
+  %i44 = alloca double, align 8
+  %i27 = alloca double, align 8
+  %i10 = alloca double, align 8
+  %i = alloca double, align 8
+  %calltmp = call double @testBegin(double 1.000000e+00)
   ret double %calltmp
+
+entry1:                                           ; No predecessors!
+  store double 0.000000e+00, ptr %i, align 8
+  br label %forentry
+
+forentry:                                         ; preds = %forbody, %entry1
+  %i2 = load double, ptr %i, align 8
+  %lttmp = fcmp ult double %i2, 5.000000e+00
+  %booltmp = uitofp i1 %lttmp to double
+  %forcond = fcmp one double %booltmp, 0.000000e+00
+  br i1 %forcond, label %forbody, label %forcont
+
+forbody:                                          ; preds = %forentry
+  %i3 = load double, ptr %i, align 8
+  %calltmp4 = call double @printI32(double %i3)
+  %calltmp5 = call double @putchard(double 1.000000e+01)
+  %binop = call double @"binary:"(double %calltmp4, double %calltmp5)
+  %i6 = load double, ptr %i, align 8
+  %nextvar = fadd double %i6, 1.000000e+00
+  store double %nextvar, ptr %i, align 8
+  br label %forentry
+
+forcont:                                          ; preds = %forentry
+  ret double 0.000000e+00
+
+entry7:                                           ; No predecessors!
+  %calltmp8 = call double @testBegin(double 2.000000e+00)
+  ret double %calltmp8
+
+entry9:                                           ; No predecessors!
+  store double 0.000000e+00, ptr %i10, align 8
+  br label %forentry11
+
+forentry11:                                       ; preds = %forbody16, %entry9
+  %i12 = load double, ptr %i10, align 8
+  %lttmp13 = fcmp ult double %i12, 5.000000e+00
+  %booltmp14 = uitofp i1 %lttmp13 to double
+  %forcond15 = fcmp one double %booltmp14, 0.000000e+00
+  br i1 %forcond15, label %forbody16, label %forcont17
+
+forbody16:                                        ; preds = %forentry11
+  %i18 = load double, ptr %i10, align 8
+  %calltmp19 = call double @printI32(double %i18)
+  %calltmp20 = call double @putchard(double 1.000000e+01)
+  %binop21 = call double @"binary:"(double %calltmp19, double %calltmp20)
+  %i22 = load double, ptr %i10, align 8
+  %nextvar23 = fadd double %i22, 2.000000e+00
+  store double %nextvar23, ptr %i10, align 8
+  br label %forentry11
+
+forcont17:                                        ; preds = %forentry11
+  ret double 0.000000e+00
+
+entry24:                                          ; No predecessors!
+  %calltmp25 = call double @testBegin(double 3.000000e+00)
+  ret double %calltmp25
+
+entry26:                                          ; No predecessors!
+  store double 0.000000e+00, ptr %i27, align 8
+  br label %forentry28
+
+forentry28:                                       ; preds = %forbody33, %entry26
+  %i29 = load double, ptr %i27, align 8
+  %lttmp30 = fcmp ult double %i29, 0.000000e+00
+  %booltmp31 = uitofp i1 %lttmp30 to double
+  %forcond32 = fcmp one double %booltmp31, 0.000000e+00
+  br i1 %forcond32, label %forbody33, label %forcont34
+
+forbody33:                                        ; preds = %forentry28
+  %i35 = load double, ptr %i27, align 8
+  %calltmp36 = call double @printI32(double %i35)
+  %calltmp37 = call double @putchard(double 1.000000e+01)
+  %binop38 = call double @"binary:"(double %calltmp36, double %calltmp37)
+  %i39 = load double, ptr %i27, align 8
+  %nextvar40 = fadd double %i39, 2.000000e+00
+  store double %nextvar40, ptr %i27, align 8
+  br label %forentry28
+
+forcont34:                                        ; preds = %forentry28
+  ret double 0.000000e+00
+
+entry41:                                          ; No predecessors!
+  %calltmp42 = call double @testBegin(double 4.000000e+00)
+  ret double %calltmp42
+
+entry43:                                          ; No predecessors!
+  store double 0.000000e+00, ptr %i44, align 8
+  br label %forentry45
+
+forentry45:                                       ; preds = %forcont59, %entry43
+  %i46 = load double, ptr %i44, align 8
+  %lttmp47 = fcmp ult double %i46, 1.000000e+01
+  %booltmp48 = uitofp i1 %lttmp47 to double
+  %forcond49 = fcmp one double %booltmp48, 0.000000e+00
+  br i1 %forcond49, label %forbody50, label %forcont51
+
+forbody50:                                        ; preds = %forentry45
+  %i52 = load double, ptr %i44, align 8
+  store double %i52, ptr %j, align 8
+  br label %forentry53
+
+forcont51:                                        ; preds = %forentry45
+  ret double 0.000000e+00
+
+forentry53:                                       ; preds = %forbody58, %forbody50
+  %j54 = load double, ptr %j, align 8
+  %lttmp55 = fcmp ult double %j54, 1.000000e+01
+  %booltmp56 = uitofp i1 %lttmp55 to double
+  %forcond57 = fcmp one double %booltmp56, 0.000000e+00
+  br i1 %forcond57, label %forbody58, label %forcont59
+
+forbody58:                                        ; preds = %forentry53
+  %calltmp60 = call double @putchard(double 4.200000e+01)
+  %j61 = load double, ptr %j, align 8
+  %nextvar62 = fadd double %j61, 1.000000e+00
+  store double %nextvar62, ptr %j, align 8
+  br label %forentry53
+
+forcont59:                                        ; preds = %forentry53
+  %calltmp63 = call double @putchard(double 1.000000e+01)
+  %binop64 = call double @"binary:"(double 0.000000e+00, double %calltmp63)
+  %i65 = load double, ptr %i44, align 8
+  %nextvar66 = fadd double %i65, 1.000000e+00
+  store double %nextvar66, ptr %i44, align 8
+  br label %forentry45
+
+entry67:                                          ; No predecessors!
+  %calltmp68 = call double @testBegin(double 5.000000e+00)
+  ret double %calltmp68
+
+entry69:                                          ; No predecessors!
+  %calltmp70 = call double @circle(double 1.000000e+01)
+  ret double %calltmp70
 }

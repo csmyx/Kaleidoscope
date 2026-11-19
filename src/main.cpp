@@ -1,5 +1,7 @@
 #include "global.h"
 #include "util.h"
+// #include <llvm/Support/Debug.h>
+// #define DEBUG_TYPE "kaleidoscope"
 
 int main() {
     InitializeNativeTraget();
@@ -13,7 +15,9 @@ int main() {
     ParseMainLoop();
 
     if (!debug::turn_on_jit) {
-        EmitObjectFile();
+        const char *object_file = "test/test_emit_object/obj.o";
+        EmitObjectFile(object_file);
+        // llvm::dbgs() << "flushed to " << object_file << "!\n";
     }
 
     return 0;

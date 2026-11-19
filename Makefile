@@ -10,7 +10,7 @@ VCPKG_FILE := ${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake
 BUILD_TYPE=Debug
 # BUILD_TYPE=RelWithDebInfo
 config:
-	cmake -B build -S . \
+	cmake -B build -S . -G Ninja \
 	-DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
 	-DCMAKE_TOOLCHAIN_FILE=${VCPKG_FILE}
 
@@ -37,11 +37,11 @@ format:
 clean: clean_tests
 	rm -rf build
 
-rebuild: clean config build
-
 reconfig: clean config
 
-TEST_LIST = test_if test_for test_mandelbrot_set test_var_declar_assign
+rebuild: reconfig build
+
+TEST_LIST = test_if test_for test_mandelbrot_set test_var_declar_assign test_fibonacii
 TEST_DIR = test/
 # files of test:
 # input file -> test_name.sh, 

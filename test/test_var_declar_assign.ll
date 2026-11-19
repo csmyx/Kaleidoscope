@@ -121,65 +121,217 @@ entry:
 }
 define double @__anon_expr() {
 entry:
-  %calltmp = call double @prefix(double 2.000000e+00)
-  %calltmp1 = call double @test1(double 2.000000e+00)
+  %calltmp = call double @prefix(double 1.000000e+00)
+  %calltmp1 = call double @test1(double 1.230000e+02)
   %binop = call double @"binary:"(double %calltmp, double %calltmp1)
   ret double %binop
-}
-define double @__anon_expr() {
-entry:
-  %calltmp = call double @prefix(double 3.000000e+00)
-  %calltmp1 = call double @test2(double 3.000000e+00, double 1.024000e+03)
-  %binop = call double @"binary:"(double %calltmp, double %calltmp1)
-  ret double %binop
-}
-define double @__anon_expr() {
-entry:
-  %y = alloca double, align 8
-  %calltmp = call double @prefix(double 4.000000e+00)
-  store double 4.000000e+00, ptr %y, align 8
-  %binop = call double @"binary:"(double %calltmp, double 4.000000e+00)
-  %y1 = load double, ptr %y, align 8
-  %calltmp2 = call double @test2(double 1.230000e+02, double %y1)
-  %binop3 = call double @"binary:"(double %binop, double %calltmp2)
-  ret double %binop3
-}
-define double @__anon_expr() {
-entry:
-  %x = alloca double, align 8
-  %calltmp = call double @prefix(double 5.000000e+00)
-  store double 5.000000e+00, ptr %x, align 8
-  %binop = call double @"binary:"(double %calltmp, double 5.000000e+00)
-  %x1 = load double, ptr %x, align 8
-  %calltmp2 = call double @test2(double %x1, double 4.200000e+01)
-  %binop3 = call double @"binary:"(double %binop, double %calltmp2)
-  ret double %binop3
-}
-define double @__anon_expr() {
-entry:
-  %x = alloca double, align 8
-  %calltmp = call double @prefix(double 6.000000e+00)
-  store double 6.000000e+00, ptr %x, align 8
-  %binop = call double @"binary:"(double %calltmp, double 6.000000e+00)
-  %x1 = load double, ptr %x, align 8
-  %x2 = load double, ptr %x, align 8
-  %multmp = fmul double 1.000000e+01, %x2
-  %calltmp3 = call double @test2(double %x1, double %multmp)
-  %binop4 = call double @"binary:"(double %binop, double %calltmp3)
-  ret double %binop4
-}
-define double @__anon_expr() {
-entry:
-  %y = alloca double, align 8
-  %x = alloca double, align 8
-  %calltmp = call double @prefix(double 7.000000e+00)
-  store double 7.000000e+00, ptr %x, align 8
-  %binop = call double @"binary:"(double %calltmp, double 7.000000e+00)
-  store double 4.200000e+01, ptr %y, align 8
-  %binop1 = call double @"binary:"(double %binop, double 4.200000e+01)
-  %x2 = load double, ptr %x, align 8
-  %y3 = load double, ptr %y, align 8
-  %calltmp4 = call double @test2(double %x2, double %y3)
-  %binop5 = call double @"binary:"(double %binop1, double %calltmp4)
+
+entry2:                                           ; No predecessors!
+  %calltmp3 = call double @prefix(double 2.000000e+00)
+  %calltmp4 = call double @test1(double 2.000000e+00)
+  %binop5 = call double @"binary:"(double %calltmp3, double %calltmp4)
   ret double %binop5
+}
+define double @__anon_expr() {
+entry:
+  %calltmp = call double @prefix(double 1.000000e+00)
+  %calltmp1 = call double @test1(double 1.230000e+02)
+  %binop = call double @"binary:"(double %calltmp, double %calltmp1)
+  ret double %binop
+
+entry2:                                           ; No predecessors!
+  %calltmp3 = call double @prefix(double 2.000000e+00)
+  %calltmp4 = call double @test1(double 2.000000e+00)
+  %binop5 = call double @"binary:"(double %calltmp3, double %calltmp4)
+  ret double %binop5
+
+entry6:                                           ; No predecessors!
+  %calltmp7 = call double @prefix(double 3.000000e+00)
+  %calltmp8 = call double @test2(double 3.000000e+00, double 1.024000e+03)
+  %binop9 = call double @"binary:"(double %calltmp7, double %calltmp8)
+  ret double %binop9
+}
+define double @__anon_expr() {
+entry:
+  %y = alloca double, align 8
+  %calltmp = call double @prefix(double 1.000000e+00)
+  %calltmp1 = call double @test1(double 1.230000e+02)
+  %binop = call double @"binary:"(double %calltmp, double %calltmp1)
+  ret double %binop
+
+entry2:                                           ; No predecessors!
+  %calltmp3 = call double @prefix(double 2.000000e+00)
+  %calltmp4 = call double @test1(double 2.000000e+00)
+  %binop5 = call double @"binary:"(double %calltmp3, double %calltmp4)
+  ret double %binop5
+
+entry6:                                           ; No predecessors!
+  %calltmp7 = call double @prefix(double 3.000000e+00)
+  %calltmp8 = call double @test2(double 3.000000e+00, double 1.024000e+03)
+  %binop9 = call double @"binary:"(double %calltmp7, double %calltmp8)
+  ret double %binop9
+
+entry10:                                          ; No predecessors!
+  %calltmp11 = call double @prefix(double 4.000000e+00)
+  store double 4.000000e+00, ptr %y, align 8
+  %binop12 = call double @"binary:"(double %calltmp11, double 4.000000e+00)
+  %y13 = load double, ptr %y, align 8
+  %calltmp14 = call double @test2(double 1.230000e+02, double %y13)
+  %binop15 = call double @"binary:"(double %binop12, double %calltmp14)
+  ret double %binop15
+}
+define double @__anon_expr() {
+entry:
+  %x = alloca double, align 8
+  %y = alloca double, align 8
+  %calltmp = call double @prefix(double 1.000000e+00)
+  %calltmp1 = call double @test1(double 1.230000e+02)
+  %binop = call double @"binary:"(double %calltmp, double %calltmp1)
+  ret double %binop
+
+entry2:                                           ; No predecessors!
+  %calltmp3 = call double @prefix(double 2.000000e+00)
+  %calltmp4 = call double @test1(double 2.000000e+00)
+  %binop5 = call double @"binary:"(double %calltmp3, double %calltmp4)
+  ret double %binop5
+
+entry6:                                           ; No predecessors!
+  %calltmp7 = call double @prefix(double 3.000000e+00)
+  %calltmp8 = call double @test2(double 3.000000e+00, double 1.024000e+03)
+  %binop9 = call double @"binary:"(double %calltmp7, double %calltmp8)
+  ret double %binop9
+
+entry10:                                          ; No predecessors!
+  %calltmp11 = call double @prefix(double 4.000000e+00)
+  store double 4.000000e+00, ptr %y, align 8
+  %binop12 = call double @"binary:"(double %calltmp11, double 4.000000e+00)
+  %y13 = load double, ptr %y, align 8
+  %calltmp14 = call double @test2(double 1.230000e+02, double %y13)
+  %binop15 = call double @"binary:"(double %binop12, double %calltmp14)
+  ret double %binop15
+
+entry16:                                          ; No predecessors!
+  %calltmp17 = call double @prefix(double 5.000000e+00)
+  store double 5.000000e+00, ptr %x, align 8
+  %binop18 = call double @"binary:"(double %calltmp17, double 5.000000e+00)
+  %x19 = load double, ptr %x, align 8
+  %calltmp20 = call double @test2(double %x19, double 4.200000e+01)
+  %binop21 = call double @"binary:"(double %binop18, double %calltmp20)
+  ret double %binop21
+}
+define double @__anon_expr() {
+entry:
+  %x24 = alloca double, align 8
+  %x = alloca double, align 8
+  %y = alloca double, align 8
+  %calltmp = call double @prefix(double 1.000000e+00)
+  %calltmp1 = call double @test1(double 1.230000e+02)
+  %binop = call double @"binary:"(double %calltmp, double %calltmp1)
+  ret double %binop
+
+entry2:                                           ; No predecessors!
+  %calltmp3 = call double @prefix(double 2.000000e+00)
+  %calltmp4 = call double @test1(double 2.000000e+00)
+  %binop5 = call double @"binary:"(double %calltmp3, double %calltmp4)
+  ret double %binop5
+
+entry6:                                           ; No predecessors!
+  %calltmp7 = call double @prefix(double 3.000000e+00)
+  %calltmp8 = call double @test2(double 3.000000e+00, double 1.024000e+03)
+  %binop9 = call double @"binary:"(double %calltmp7, double %calltmp8)
+  ret double %binop9
+
+entry10:                                          ; No predecessors!
+  %calltmp11 = call double @prefix(double 4.000000e+00)
+  store double 4.000000e+00, ptr %y, align 8
+  %binop12 = call double @"binary:"(double %calltmp11, double 4.000000e+00)
+  %y13 = load double, ptr %y, align 8
+  %calltmp14 = call double @test2(double 1.230000e+02, double %y13)
+  %binop15 = call double @"binary:"(double %binop12, double %calltmp14)
+  ret double %binop15
+
+entry16:                                          ; No predecessors!
+  %calltmp17 = call double @prefix(double 5.000000e+00)
+  store double 5.000000e+00, ptr %x, align 8
+  %binop18 = call double @"binary:"(double %calltmp17, double 5.000000e+00)
+  %x19 = load double, ptr %x, align 8
+  %calltmp20 = call double @test2(double %x19, double 4.200000e+01)
+  %binop21 = call double @"binary:"(double %binop18, double %calltmp20)
+  ret double %binop21
+
+entry22:                                          ; No predecessors!
+  %calltmp23 = call double @prefix(double 6.000000e+00)
+  store double 6.000000e+00, ptr %x24, align 8
+  %binop25 = call double @"binary:"(double %calltmp23, double 6.000000e+00)
+  %x26 = load double, ptr %x24, align 8
+  %x27 = load double, ptr %x24, align 8
+  %multmp = fmul double 1.000000e+01, %x27
+  %calltmp28 = call double @test2(double %x26, double %multmp)
+  %binop29 = call double @"binary:"(double %binop25, double %calltmp28)
+  ret double %binop29
+}
+define double @__anon_expr() {
+entry:
+  %y34 = alloca double, align 8
+  %x32 = alloca double, align 8
+  %x24 = alloca double, align 8
+  %x = alloca double, align 8
+  %y = alloca double, align 8
+  %calltmp = call double @prefix(double 1.000000e+00)
+  %calltmp1 = call double @test1(double 1.230000e+02)
+  %binop = call double @"binary:"(double %calltmp, double %calltmp1)
+  ret double %binop
+
+entry2:                                           ; No predecessors!
+  %calltmp3 = call double @prefix(double 2.000000e+00)
+  %calltmp4 = call double @test1(double 2.000000e+00)
+  %binop5 = call double @"binary:"(double %calltmp3, double %calltmp4)
+  ret double %binop5
+
+entry6:                                           ; No predecessors!
+  %calltmp7 = call double @prefix(double 3.000000e+00)
+  %calltmp8 = call double @test2(double 3.000000e+00, double 1.024000e+03)
+  %binop9 = call double @"binary:"(double %calltmp7, double %calltmp8)
+  ret double %binop9
+
+entry10:                                          ; No predecessors!
+  %calltmp11 = call double @prefix(double 4.000000e+00)
+  store double 4.000000e+00, ptr %y, align 8
+  %binop12 = call double @"binary:"(double %calltmp11, double 4.000000e+00)
+  %y13 = load double, ptr %y, align 8
+  %calltmp14 = call double @test2(double 1.230000e+02, double %y13)
+  %binop15 = call double @"binary:"(double %binop12, double %calltmp14)
+  ret double %binop15
+
+entry16:                                          ; No predecessors!
+  %calltmp17 = call double @prefix(double 5.000000e+00)
+  store double 5.000000e+00, ptr %x, align 8
+  %binop18 = call double @"binary:"(double %calltmp17, double 5.000000e+00)
+  %x19 = load double, ptr %x, align 8
+  %calltmp20 = call double @test2(double %x19, double 4.200000e+01)
+  %binop21 = call double @"binary:"(double %binop18, double %calltmp20)
+  ret double %binop21
+
+entry22:                                          ; No predecessors!
+  %calltmp23 = call double @prefix(double 6.000000e+00)
+  store double 6.000000e+00, ptr %x24, align 8
+  %binop25 = call double @"binary:"(double %calltmp23, double 6.000000e+00)
+  %x26 = load double, ptr %x24, align 8
+  %x27 = load double, ptr %x24, align 8
+  %multmp = fmul double 1.000000e+01, %x27
+  %calltmp28 = call double @test2(double %x26, double %multmp)
+  %binop29 = call double @"binary:"(double %binop25, double %calltmp28)
+  ret double %binop29
+
+entry30:                                          ; No predecessors!
+  %calltmp31 = call double @prefix(double 7.000000e+00)
+  store double 7.000000e+00, ptr %x32, align 8
+  %binop33 = call double @"binary:"(double %calltmp31, double 7.000000e+00)
+  store double 4.200000e+01, ptr %y34, align 8
+  %binop35 = call double @"binary:"(double %binop33, double 4.200000e+01)
+  %x36 = load double, ptr %x32, align 8
+  %y37 = load double, ptr %y34, align 8
+  %calltmp38 = call double @test2(double %x36, double %y37)
+  %binop39 = call double @"binary:"(double %binop35, double %calltmp38)
+  ret double %binop39
 }

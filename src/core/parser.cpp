@@ -33,6 +33,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <print>
 #include <string>
 #include <system_error>
 #include <unistd.h>
@@ -385,11 +386,13 @@ std::unique_ptr<PrototypeExprAST> ParsePrototype() {
 std::unique_ptr<FunctionExprAST> ParseDefinition() {
     getNextToken(); // eat def
     auto Proto = ParsePrototype();
-    if (!Proto)
+    if (!Proto) {
         return nullptr;
+    }
 
-    if (auto E = ParseExpression())
+    if (auto E = ParseExpression()) {
         return std::make_unique<FunctionExprAST>(std::move(Proto), std::move(E));
+    }
     return nullptr;
 }
 
@@ -403,8 +406,9 @@ void HandleDefinition() {
     if (auto FnAST = ParseDefinition()) {
         if (auto *FnIR = FnAST->codegen()) {
             if constexpr (debug::show_llvm_ir) {
-                if constexpr (debug::show_llvm_prompt)
-                    fprintf(stderr, "Read function definition:\n");
+                if constexpr (debug::show_llvm_prompt) {
+                    fmt::println(stderr, "Read function definition:");
+                }
                 FnIR->print(llvm::errs());
             }
             if constexpr (debug::turn_on_jit) {
@@ -453,7 +457,7 @@ void HandleExtern() {
     [[maybe_unused]] auto res = FP();
 
     if constexpr (debug::show_jit_evaluate_result) {
-        fprintf(stderr, "Evaluated to %f\n", res);
+        fmt::println(stderr, "Evaluated to {:f}", res);
     }
 
     // Delete the anonymou expression module from the JIT.
@@ -501,7 +505,7 @@ void InitializeModuleAndManager() {
     Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
 }
 
-void EmitObjectFile() {
+void EmitObjectFile(const char *object_file) {
     // Initialize the target registry etc.
     llvm::InitializeAllTargetInfos();
     llvm::InitializeAllTargets();
@@ -513,12 +517,14 @@ void EmitObjectFile() {
     TheModule->setTargetTriple(llvm::Triple(target_triple));
 
     std::string error;
-    const llvm::Target *target = llvm::TargetRegistry::lookupTarget(llvm::Triple(target_triple), error);
+    const llvm::Target *target =
+        llvm::TargetRegistry::lookupTarget(llvm::Triple(target_triple), error);
 
     // Print an error and exit if we couldn't find the requested target.
     // This generally occurs if we've forgotten to initialise the
     // TargetRegistry or we have a bogus target triple.
     if (!target) {
+        llvm::dbgs() << "!target" << "\n";
         llvm::errs() << error;
         exit(1);
     }
@@ -532,9 +538,8 @@ void EmitObjectFile() {
 
     TheModule->setDataLayout(TheTargetMachine->createDataLayout());
 
-    auto Filename = "output.o";
     std::error_code EC;
-    llvm::raw_fd_ostream dest(Filename, EC, llvm::sys::fs::OF_None);
+    llvm::raw_fd_ostream dest(object_file, EC, llvm::sys::fs::OF_None);
 
     if (EC) {
         llvm::errs() << "Could not open file: " << EC.message();

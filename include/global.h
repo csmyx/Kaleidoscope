@@ -76,7 +76,7 @@ extern llvm::ExitOnError ExitOnErr;
 
 void InitializeNativeTraget();
 void InitializeModuleAndManager();
-void EmitObjectFile();
+void EmitObjectFile(const char *);
 
 // lexer
 int GetCurTokPrecedence();
